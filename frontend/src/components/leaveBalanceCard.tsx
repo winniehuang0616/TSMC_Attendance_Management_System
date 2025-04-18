@@ -1,13 +1,13 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export type LeaveBalanceCardProps = {
-  type: string
-  used: number
-  total: number
-  remainingText: string
-  className?: string
-}
+  type: string;
+  used: number;
+  total: number;
+  remainingText: string;
+  className?: string;
+};
 
 export function LeaveBalanceCard({
   type,
@@ -19,17 +19,19 @@ export function LeaveBalanceCard({
   return (
     <Card
       className={cn(
-        "w-full max-w-[200px] aspect-square p-4 shadow-md rounded-2xl text-center flex flex-col justify-center",
-        className
+        "flex aspect-square w-full max-w-[200px] flex-col justify-center rounded-2xl p-4 text-center shadow-md",
+        className,
       )}
     >
       <CardContent className="flex flex-col items-center justify-center p-0">
-        <p className="text-sm text-gray-500">{type} | <span className="font-light">total</span></p>
-        <div className="text-2xl font-bold text-red-500 mt-1 mb-2">
+        <p className="text-gray-500 text-sm">
+          {type} | <span className="font-light">total</span>
+        </p>
+        <div className="mb-2 mt-1 text-2xl font-bold text-red-500">
           {used} <span className="text-gray-700">/ {total}</span>
         </div>
-        <p className="text-xs text-gray-400">{remainingText}</p>
+        <p className="text-gray-400 text-xs">{remainingText}</p>
       </CardContent>
     </Card>
-  )
+  );
 }
