@@ -1,11 +1,18 @@
+import { Toaster } from "@/components/ui/toaster";
+
+import { ApplyForm } from "./components/applyForm";
+
 function App() {
   return (
     <>
       <div className="flex h-screen flex-col">
-        <div className="relative z-10 h-[14%] bg-white shadow-header"></div>
+        <div className="fixed left-0 right-0 z-10 h-[11%] bg-white shadow-header" />
         <div className="flex flex-1">
-          <div className="w-[18%] bg-white shadow-sidebar"></div>
-          <div className="flex flex-1 items-center justify-center bg-background"></div>
+          <div className="w-[18%] bg-white shadow-sidebar" />
+          <div className="flex flex-1 overflow-auto bg-background px-8 py-8">
+            <ApplyForm />
+            <Toaster />
+          </div>
         </div>
       </div>
     </>
