@@ -1,7 +1,5 @@
-import { DetailCard } from "@/components/detailCard";
 import { Toaster } from "@/components/ui/toaster";
 
-import { ApplyForm } from "./components/applyForm";
 import { EditCard } from "./components/editCard";
 
 function App() {

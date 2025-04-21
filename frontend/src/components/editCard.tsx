@@ -85,7 +85,7 @@ export function EditCard() {
       type: detailData.type,
       agent: detailData.agent,
       reason: detailData.reason,
-      file: detailData.file
+      file: detailData.file,
     },
   });
 
@@ -99,11 +99,11 @@ export function EditCard() {
     console.log(data);
   }
   return (
-    <Dialog >
+    <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline">edit</Button>
       </DialogTrigger>
-      
+
       <DialogContent className="sm:max-w-[450px]">
         <div className="rounded-md bg-white">
           <h2 className="mb-2 text-lg font-bold text-darkBlue">申請資料</h2>
@@ -142,7 +142,12 @@ export function EditCard() {
                                         format(field.value, "yyyy/MM/dd")
                                       ) : (
                                         <span className="text-gray">
-                                          {format(fieldKey === "start" ? detailData.startDate : detailData.endDate, "yyyy/MM/dd")}
+                                          {format(
+                                            fieldKey === "start"
+                                              ? detailData.startDate
+                                              : detailData.endDate,
+                                            "yyyy/MM/dd",
+                                          )}
                                         </span>
                                       )}
                                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -176,7 +181,6 @@ export function EditCard() {
                                         min={0}
                                         max={23}
                                         className="w-[60px] text-gray"
-                                        
                                         {...hourField}
                                         onChange={(e) => {
                                           const val = parseInt(e.target.value);
@@ -223,12 +227,10 @@ export function EditCard() {
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
-                                                  >
+                        >
                           <FormControl>
                             <SelectTrigger className="text-gray">
-                              <SelectValue
-                               {...field}
-                              />
+                              <SelectValue {...field} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -245,7 +247,6 @@ export function EditCard() {
                                   <SelectItem
                                     key={person.id}
                                     value={person.name}
-                                    
                                   >
                                     {person.name}
                                   </SelectItem>
@@ -269,10 +270,7 @@ export function EditCard() {
                   <FormItem>
                     <FormLabel>請假原因</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        className="text-gray"
-                      />
+                      <Input {...field} className="text-gray" />
                     </FormControl>
                     <FormMessage className="hidden" />
                   </FormItem>
@@ -294,7 +292,7 @@ export function EditCard() {
                         >
                           <UploadCloudIcon className="mr-2 h-6 w-6 text-gray" />
                           <p className="text-sm text-gray">
-                            {detailData.file || "點此上傳檔案"}
+                            {fileName || detailData.file}
                           </p>
                         </label>
                         <input
@@ -320,9 +318,8 @@ export function EditCard() {
 
               <DialogFooter className="sm:justify-start">
                 <div className="flex gap-4">
-                  
-                    <Button type="submit">更新</Button>
-                    <DialogClose asChild>
+                  <Button type="submit">更新</Button>
+                  <DialogClose asChild>
                     <Button
                       type="button"
                       variant="destructive"
@@ -330,8 +327,8 @@ export function EditCard() {
                         form.reset();
                         setFileName("");
                         toast({
-                            title: "已撤回請假申請",
-                          });
+                          title: "已撤回請假申請",
+                        });
                       }}
                     >
                       撤回
