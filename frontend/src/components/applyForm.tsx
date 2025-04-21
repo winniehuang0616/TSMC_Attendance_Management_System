@@ -32,14 +32,25 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
+type Agent = {
+  id: number;
+  name: string;
+};
+
+const agentData: Agent[] = [
+  { id: 1, name: "111-王小明" },
+  { id: 2, name: "112-陳美惠" },
+  { id: 3, name: "113-黃玲玲" },
+];
+
 const FormSchema = z.object({
-  start: z.date({ required_error: "請選擇開始日期" }),
+  start: z.date(),
   end: z.date({ required_error: "請選擇結束日期" }),
-  startHour: z.string({ required_error: "請選擇開始時間" }),
-  endHour: z.string({ required_error: "請選擇結束時間" }),
-  type: z.string({ required_error: "請選擇假別" }),
-  agent: z.string({ required_error: "請選擇代理人" }),
-  reason: z.string({ required_error: "請輸入請假原因" }),
+  startHour: z.string().min(1, "請輸入幾點"),
+  endHour: z.string().min(1, "請輸入幾點"),
+  type: z.string().min(1, "請選擇假別"),
+  agent: z.string().min(1, "請輸入代理人"),
+  reason: z.string().min(1, "請輸入原因"),
   file: z.any().optional(),
 });
 
@@ -86,7 +97,7 @@ export function ApplyForm() {
   }
 
   return (
-    <div className="ml-12 mt-24 rounded-md bg-white p-6 shadow-element">
+    <div className="rounded-md bg-white p-6 shadow-element">
       <h2 className="mb-2 text-lg font-bold text-darkBlue">申請表單</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -96,16 +107,16 @@ export function ApplyForm() {
               const hourKey = (fieldKey + "Hour") as "startHour" | "endHour";
 
               return (
-                <div key={fieldKey} className="flex flex-col">
+                <div key={fieldKey} className="flex flex-col items-end">
                   <FormField
                     control={form.control}
                     name={fieldKey as "start" | "end"}
                     render={({ field }) => (
                       <FormItem className="space-y-1">
-                        <FormLabel>
+                        <FormLabel className="absolute mt-[10px]">
                           {fieldKey === "start" ? "開始時間" : "結束時間"}
                         </FormLabel>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 items-end">
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
@@ -140,36 +151,42 @@ export function ApplyForm() {
                             </PopoverContent>
                           </Popover>
 
-                          <FormField
-                            control={form.control}
-                            name={hourKey}
-                            render={({ field: hourField }) => (
-                              <Input
-                                type="number"
-                                min={0}
-                                max={23}
-                                className="w-[60px] text-gray"
-                                placeholder="時"
-                                {...hourField}
-                                onChange={(e) => {
-                                  const val = parseInt(e.target.value);
-                                  hourField.onChange(e.target.value);
-                                  const base =
-                                    form.getValues(
-                                      fieldKey as "start" | "end",
-                                    ) ?? new Date();
-                                  if (!isNaN(val)) {
-                                    form.setValue(
-                                      fieldKey as "start" | "end",
-                                      setHours(base, val),
-                                    );
-                                  }
-                                }}
-                              />
-                            )}
-                          />
+                        <FormField
+                          control={form.control}
+                          name={hourKey}
+                          render={({ field: hourField }) => (
+                            <FormItem>
+                              <FormLabel>小時</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  max={23}
+                                  className="w-[60px] text-gray"
+                                  placeholder="時"
+                                  {...hourField}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value);
+                                    hourField.onChange(e.target.value);
+                                    const base =
+                                      form.getValues(
+                                        fieldKey as "start" | "end",
+                                      ) ?? new Date();
+                                    if (!isNaN(val)) {
+                                      form.setValue(
+                                        fieldKey as "start" | "end",
+                                        setHours(base, val),
+                                      );
+                                    }
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage className="hidden" />
+                            </FormItem>
+                          )}
+                        />
                         </div>
-                        <FormMessage />
+                        <FormMessage className="hidden" />
                       </FormItem>
                     )}
                   />
@@ -208,14 +225,16 @@ export function ApplyForm() {
                           </>
                         ) : (
                           <>
-                            <SelectItem value="王小明">王小明</SelectItem>
-                            <SelectItem value="陳美麗">陳美麗</SelectItem>
-                            <SelectItem value="李曉光">李曉光</SelectItem>
-                          </>
-                        )}
+                            {agentData.map((person) => (
+        <SelectItem key={person.id} value={person.name}>
+          {person.name}
+        </SelectItem>
+        ))}
+                          </>)}
+                        
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="hidden" />
                   </FormItem>
                 )}
               />
@@ -236,7 +255,7 @@ export function ApplyForm() {
                     className="text-gray"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="hidden" />
               </FormItem>
             )}
           />
@@ -252,7 +271,7 @@ export function ApplyForm() {
                   <div>
                     <label
                       htmlFor="file-upload"
-                      className="border-gray-300 bg-gray-100 flex h-32 w-full cursor-pointer items-center justify-center rounded-md border border-dashed"
+                      className="border-gray-300 bg-gray-100 flex h-8 w-full cursor-pointer items-center justify-center rounded-md border border-gray"
                     >
                       <UploadCloudIcon className="mr-2 h-6 w-6 text-gray" />
                       {fileName || "點此上傳檔案"}
@@ -273,7 +292,7 @@ export function ApplyForm() {
                     />
                   </div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="hidden" />
               </FormItem>
             )}
           />

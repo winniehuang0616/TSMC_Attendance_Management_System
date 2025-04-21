@@ -9,7 +9,7 @@ function App() {
         <div className="fixed left-0 right-0 z-10 h-[11%] bg-white shadow-header" />
         <div className="flex flex-1">
           <div className="w-[18%] bg-white shadow-sidebar" />
-          <div className="flex flex-1 overflow-auto bg-background px-8 py-8">
+          <div className="flex flex-1 overflow-auto bg-background pb-12 pl-20 pt-32">
             <ApplyForm />
             <Toaster />
           </div>
