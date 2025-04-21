@@ -31,11 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-
-type Agent = {
-  id: number;
-  name: string;
-};
+import type { Agent } from "@/models/detail";
 
 const agentData: Agent[] = [
   { id: 1, name: "111-王小明" },
