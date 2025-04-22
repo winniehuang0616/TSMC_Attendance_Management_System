@@ -11,7 +11,7 @@ export type Detail = {
   file: string;
   result: boolean;
   description: string;
-  status: number;
+  status: boolean;
 };
 
 export type Agent = {
