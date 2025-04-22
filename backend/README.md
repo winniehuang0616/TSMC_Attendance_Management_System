@@ -3,9 +3,9 @@
 
 #### 1. Clone the Repository
 ```bash
-git clone git@github.com:JiaSin-Wu/TSMC_Attendance_Management_System_backend.git
-cd TSMC_Attendance_Management_System_backend
-git checkout {branch_name}
+git clone https://github.com/winniehuang0616/TSMC_Attendance_Management_System.git
+cd TSMC_Attendance_Management_System
+git checkout -b {branch_name}
 ````
 
 #### 2. Set up .env
