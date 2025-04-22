@@ -1,4 +1,4 @@
-npytestpytestame: Run Backend Tests
+pytestpytestame: Run Backend Tests
 
 on: [push, pull_request]
 
