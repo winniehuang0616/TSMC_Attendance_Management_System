@@ -1,2 +1,22 @@
-node_modules
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd'
+
+# Virtual environments
+venv/
+env/
+
+# Environment variables
 .env
+
+# IDE/editor folders
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Flask specific
+instance/
