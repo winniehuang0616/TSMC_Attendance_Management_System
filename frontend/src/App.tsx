@@ -1,7 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
 
-import { ApplyForm } from "./components/applyForm";
-
 function App() {
   return (
     <>
@@ -10,7 +8,6 @@ function App() {
         <div className="flex flex-1">
           <div className="w-[18%] bg-white shadow-sidebar" />
           <div className="flex flex-1 overflow-auto bg-background pb-12 pl-20 pt-32">
-            <ApplyForm />
             <Toaster />
           </div>
         </div>
