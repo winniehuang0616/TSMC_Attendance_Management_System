@@ -17,6 +17,10 @@ jobs:
 
     - name: Install dependencies
       run: pip install -r requirements.txt
-
+    
+    - name: Debug - List files
+      run: |
+        pwd
+        ls -R
     - name: Run tests
       run: pytest backend/tests/
