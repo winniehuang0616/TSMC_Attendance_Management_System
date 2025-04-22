@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { LeaveBalanceOverview } from "@/components/leaveBalanceOverview";
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
         <div className="flex flex-1">
           <div className="w-[18%] bg-white shadow-sidebar" />
           <div className="flex flex-1 overflow-auto bg-background pb-12 pl-20 pt-32">
+            <LeaveBalanceOverview />
             <Toaster />
           </div>
         </div>
