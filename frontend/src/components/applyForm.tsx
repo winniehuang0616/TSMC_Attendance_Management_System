@@ -121,13 +121,13 @@ export function ApplyForm() {
                                   className={cn(
                                     "w-[120px] pl-3 text-left font-normal",
                                     !field.value &&
-                                      "text-muted-foreground text-gray",
+                                      "text-muted-foreground",
                                   )}
                                 >
                                   {field.value ? (
                                     format(field.value, "yyyy/MM/dd")
                                   ) : (
-                                    <span className="text-gray">選擇日期</span>
+                                    <span>選擇日期</span>
                                   )}
                                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                 </Button>
@@ -159,7 +159,7 @@ export function ApplyForm() {
                                     type="number"
                                     min={0}
                                     max={23}
-                                    className="w-[60px] text-gray"
+                                    className="w-[60px]"
                                     placeholder="時"
                                     {...hourField}
                                     onChange={(e) => {
@@ -206,7 +206,7 @@ export function ApplyForm() {
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="text-gray">
+                        <SelectTrigger>
                           <SelectValue
                             placeholder={`選擇${fieldKey === "type" ? "假別" : "代理人"}`}
                           />
@@ -249,7 +249,6 @@ export function ApplyForm() {
                   <Input
                     placeholder="輸入請假原因"
                     {...field}
-                    className="text-gray"
                   />
                 </FormControl>
                 <FormMessage className="hidden" />
@@ -270,8 +269,8 @@ export function ApplyForm() {
                       htmlFor="file-upload"
                       className="flex h-10 w-full cursor-pointer items-center rounded-md border border-zinc-200 bg-white px-3"
                     >
-                      <UploadCloudIcon className="mr-2 h-6 w-6 text-gray" />
-                      <p className="text-sm text-gray">
+                      <UploadCloudIcon className="mr-2 h-6 w-6" />
+                      <p className="text-sm">
                         {fileName || "點此上傳檔案"}
                       </p>
                     </label>
@@ -280,7 +279,7 @@ export function ApplyForm() {
                       id="file-upload"
                       type="file"
                       accept=".png,.jpg,.jpeg,.pdf"
-                      className="hidden text-gray"
+                      className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {

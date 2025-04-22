@@ -141,7 +141,7 @@ export function EditCard() {
                                       {field.value ? (
                                         format(field.value, "yyyy/MM/dd")
                                       ) : (
-                                        <span className="text-gray">
+                                        <span>
                                           {format(
                                             fieldKey === "start"
                                               ? detailData.startDate
@@ -180,7 +180,7 @@ export function EditCard() {
                                         type="number"
                                         min={0}
                                         max={23}
-                                        className="w-[60px] text-gray"
+                                        className="w-[60px]"
                                         {...hourField}
                                         onChange={(e) => {
                                           const val = parseInt(e.target.value);
@@ -229,7 +229,7 @@ export function EditCard() {
                           value={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger className="text-gray">
+                            <SelectTrigger>
                               <SelectValue {...field} />
                             </SelectTrigger>
                           </FormControl>
@@ -270,7 +270,7 @@ export function EditCard() {
                   <FormItem>
                     <FormLabel>請假原因</FormLabel>
                     <FormControl>
-                      <Input {...field} className="text-gray" />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage className="hidden" />
                   </FormItem>
@@ -290,8 +290,8 @@ export function EditCard() {
                           htmlFor="file-upload"
                           className="flex h-10 w-full cursor-pointer items-center rounded-md border border-zinc-200 bg-white px-3"
                         >
-                          <UploadCloudIcon className="mr-2 h-6 w-6 text-gray" />
-                          <p className="text-sm text-gray">
+                          <UploadCloudIcon className="mr-2 h-6 w-6" />
+                          <p className="text-sm">
                             {fileName || detailData.file}
                           </p>
                         </label>
@@ -300,7 +300,7 @@ export function EditCard() {
                           id="file-upload"
                           type="file"
                           accept=".png,.jpg,.jpeg,.pdf"
-                          className="hidden text-gray"
+                          className="hidden"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
