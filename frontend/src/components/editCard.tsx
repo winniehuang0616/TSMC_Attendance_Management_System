@@ -53,7 +53,6 @@ const detailData: Detail = {
   file: "file1.txt",
   result: true,
   description: "請在家好好休息",
-  status: 0,
 };
 
 const agentData: Agent[] = [

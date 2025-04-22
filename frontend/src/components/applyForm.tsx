@@ -120,8 +120,7 @@ export function ApplyForm() {
                                   variant="outline"
                                   className={cn(
                                     "w-[120px] pl-3 text-left font-normal",
-                                    !field.value &&
-                                      "text-muted-foreground",
+                                    !field.value && "text-muted-foreground",
                                   )}
                                 >
                                   {field.value ? (
@@ -246,10 +245,7 @@ export function ApplyForm() {
               <FormItem>
                 <FormLabel>請輸入請假原因</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="輸入請假原因"
-                    {...field}
-                  />
+                  <Input placeholder="輸入請假原因" {...field} />
                 </FormControl>
                 <FormMessage className="hidden" />
               </FormItem>
@@ -270,9 +266,7 @@ export function ApplyForm() {
                       className="flex h-10 w-full cursor-pointer items-center rounded-md border border-zinc-200 bg-white px-3"
                     >
                       <UploadCloudIcon className="mr-2 h-6 w-6" />
-                      <p className="text-sm">
-                        {fileName || "點此上傳檔案"}
-                      </p>
+                      <p className="text-sm">{fileName || "點此上傳檔案"}</p>
                     </label>
                     <input
                       ref={fileInputRef}

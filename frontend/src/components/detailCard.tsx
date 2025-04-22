@@ -1,5 +1,6 @@
 import { toast } from "@/components/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import type { Detail } from "@/models/detail";
 
 const detailData: Detail = {
@@ -30,7 +30,6 @@ const detailData: Detail = {
 };
 
 export function DetailCard() {
-  
   const handleDelete = () => {
     console.log(detailData.id);
     if (detailData.startDate > new Date()) {
@@ -38,8 +37,7 @@ export function DetailCard() {
         title: "撤回假單",
         description: `已向主管發送撤回信件`,
       });
-    }
-    else {
+    } else {
       toast({
         title: "撤回失敗",
         description: `假單已過期，無法撤回`,
@@ -69,10 +67,7 @@ export function DetailCard() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Label
-              htmlFor="type"
-              className="w-1/3"
-            >
+            <Label htmlFor="type" className="w-1/3">
               假別
             </Label>
             <Input
@@ -83,10 +78,7 @@ export function DetailCard() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Label
-              htmlFor="startTime"
-              className="w-1/3"
-            >
+            <Label htmlFor="startTime" className="w-1/3">
               開始時間
             </Label>
             <Input
@@ -101,10 +93,7 @@ export function DetailCard() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Label
-              htmlFor="endTime"
-              className="w-1/3"
-            >
+            <Label htmlFor="endTime" className="w-1/3">
               結束時間
             </Label>
             <Input
@@ -119,10 +108,7 @@ export function DetailCard() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Label
-              htmlFor="agent"
-              className="w-1/3"
-            >
+            <Label htmlFor="agent" className="w-1/3">
               代理人
             </Label>
             <Input
@@ -133,10 +119,7 @@ export function DetailCard() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Label
-              htmlFor="reason"
-              className="w-1/3"
-            >
+            <Label htmlFor="reason" className="w-1/3">
               請假原因
             </Label>
             <Input
@@ -147,10 +130,7 @@ export function DetailCard() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Label
-              htmlFor="file"
-              className="w-1/3"
-            >
+            <Label htmlFor="file" className="w-1/3">
               附件
             </Label>
             <Input
@@ -161,15 +141,22 @@ export function DetailCard() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Label htmlFor="result" className="w-1/4 font-semibold">核准結果</Label>
-            <div className="flex gap-4 h-[30px]">
+            <Label htmlFor="result" className="w-1/4 font-semibold">
+              核准結果
+            </Label>
+            <div className="flex h-[30px] gap-4">
               <div className="flex items-center gap-1">
                 <Checkbox
                   checked={detailData.status === true}
                   disabled
                   id="approve"
                 />
-                <Label htmlFor="approve" className={detailData.status === true ? "font-semibold" : ""}>通過</Label>
+                <Label
+                  htmlFor="approve"
+                  className={detailData.status === true ? "font-semibold" : ""}
+                >
+                  通過
+                </Label>
               </div>
               <div className="flex items-center gap-1">
                 <Checkbox
@@ -177,32 +164,39 @@ export function DetailCard() {
                   disabled
                   id="reject"
                 />
-                <Label htmlFor="reject" className={detailData.status === false ? "font-semibold" : ""}>未通過</Label>
+                <Label
+                  htmlFor="reject"
+                  className={detailData.status === false ? "font-semibold" : ""}
+                >
+                  未通過
+                </Label>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Label
-              htmlFor="description"
-              className="w-1/3 font-semibold"
-            >
+            <Label htmlFor="description" className="w-1/3 font-semibold">
               核准理由
             </Label>
             <Input
               id="description"
               defaultValue={detailData.description}
-              className="h-[30px] font-semibold border-zinc-400"
+              className="h-[30px] border-zinc-400 font-semibold"
               disabled
             />
           </div>
         </div>
         <DialogFooter className="flex justify-start">
           {detailData.status === true && (
-          <DialogClose asChild>
-            <Button type="button" variant="destructive" onClick={handleDelete}>
-              刪除
-            </Button>
-          </DialogClose>)}
+            <DialogClose asChild>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+              >
+                刪除
+              </Button>
+            </DialogClose>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
