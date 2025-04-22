@@ -1,4 +1,4 @@
-pytestpytestame: Run Backend Tests
+name: Run Backend Tests
 
 on: [push, pull_request]
 
