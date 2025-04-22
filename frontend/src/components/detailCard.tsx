@@ -1,3 +1,5 @@
+import { Trash2, Eye } from "lucide-react";
+
 import { toast } from "@/components/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -48,7 +50,13 @@ export function DetailCard() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">icon</Button>
+        <div className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple">
+          {detailData.status ? (
+            <Trash2 size={24} strokeWidth={2} color="blue" />
+          ) : (
+            <Eye size={24} strokeWidth={2} color="#FF4170" />
+          )}
+        </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>

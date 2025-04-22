@@ -19,7 +19,7 @@ export function LeaveBalanceCard({
   return (
     <Card
       className={cn(
-        "flex w-full max-w-[150px] h-[120px] flex-col rounded-2xl justify-center shadow-md",
+        "flex h-[120px] w-full max-w-[150px] flex-col justify-center rounded-2xl shadow-md",
         className,
       )}
     >
@@ -27,11 +27,11 @@ export function LeaveBalanceCard({
         <CardTitle>
           {type}&nbsp;<span className="font-medium text-gray">| total</span>
         </CardTitle>
-       
+
         <div className="mb-1 mt-1 text-2xl font-bold text-pink">
           {used} <span className="text-black">/ {total}</span>
         </div>
-        <p className="text-darkBlue text-xs">{remainingText}</p>
+        <p className="text-xs text-darkBlue">{remainingText}</p>
       </CardContent>
     </Card>
   );
