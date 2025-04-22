@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, setHours } from "date-fns";
 import { CalendarIcon, UploadCloudIcon } from "lucide-react";
+import { PencilLine } from "lucide-react";
 import { z } from "zod";
 
 import { useToast } from "@/components/hooks/use-toast";
@@ -100,7 +101,9 @@ export function EditCard() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">edit</Button>
+        <div className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple">
+          <PencilLine size={24} strokeWidth={2} />
+        </div>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[450px]">
