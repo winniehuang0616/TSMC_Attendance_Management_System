@@ -2,6 +2,8 @@ import { LeaveRecordTable } from "@/components/leaveRecordTable";
 import { Toaster } from "@/components/ui/toaster";
 import { LeaveStatus } from "@/models/enum/leaveStatus";
 import type { Filter, LeaveRecord } from "@/models/leave";
+import Header from "@/components/header";
+import Sidebar from "@/components/sidebar";
 
 const records: LeaveRecord[] = [
   {
@@ -40,12 +42,15 @@ function App() {
   const handleSearch = (filter: Filter) => {
     console.log("搜尋條件", filter);
   };
+  
   return (
     <>
       <div className="flex h-screen flex-col">
-        <div className="fixed left-0 right-0 z-10 h-[11%] bg-white shadow-header" />
+        <Header userName="Praful" />
         <div className="flex flex-1">
-          <div className="w-[18%] bg-white shadow-sidebar" />
+          <div className="w-[18%]">
+            <Sidebar />
+          </div>
           <div className="flex flex-1 overflow-hidden bg-background pb-12 pl-20 pt-32">
             <LeaveRecordTable records={records} onSearch={handleSearch} />
             <Toaster />
