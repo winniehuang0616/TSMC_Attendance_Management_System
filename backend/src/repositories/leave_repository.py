@@ -216,12 +216,13 @@ def review_leave_form(leave_id, data):
     try:
         # 只有 pending 狀態才能編輯
         cursor.execute(
-            "SELECT status FROM leave_info WHERE leave_id = %s", (leave_id,)
+            "SELECT status, employee_id FROM leave_info WHERE leave_id = %s", (leave_id,)
         )
         row = cursor.fetchone()
         if not row:
             return False
         status = row['status']
+        employee_id = row['employee_id']
         if status != 0:
             raise ValueError("Only pending leave can be reviewed")
         sql = (
@@ -233,7 +234,7 @@ def review_leave_form(leave_id, data):
         )
         rows = cursor.execute(sql, params)
         conn.commit()
-        return {status: True}
+        return {status: True, "leave_id": leave_id, "employee_id": employee_id}
     except:
         conn.rollback()
         raise
