@@ -1,9 +1,9 @@
+import Header from "@/components/header";
 import { LeaveRecordTable } from "@/components/leaveRecordTable";
+import Sidebar from "@/components/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import { LeaveStatus } from "@/models/enum/leaveStatus";
 import type { Filter, LeaveRecord } from "@/models/leave";
-import Header from "@/components/header";
-import Sidebar from "@/components/sidebar";
 
 const records: LeaveRecord[] = [
   {
@@ -42,7 +42,7 @@ function App() {
   const handleSearch = (filter: Filter) => {
     console.log("搜尋條件", filter);
   };
-  
+
   return (
     <>
       <div className="flex h-screen flex-col">
