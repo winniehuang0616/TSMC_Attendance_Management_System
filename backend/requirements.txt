@@ -1,10 +1,9 @@
-
 Flask==3.1.0
 
 # for config.py
 python-dotenv==1.1.0
 
-
+mysql-connector-python>=8.0.0
 
 pytest==8.3.5
 
