@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+
 import { FileText, FileSpreadsheet, LogOut } from "lucide-react";
 
 interface SidebarProps {
@@ -47,9 +48,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
     path: "/logout",
   };
 
-  const menuItems = role === "manager"
-    ? [...commonMenuItems, ...managerExtraItems, logoutItem]
-    : [...commonMenuItems, logoutItem];
+  const menuItems =
+    role === "manager"
+      ? [...commonMenuItems, ...managerExtraItems, logoutItem]
+      : [...commonMenuItems, logoutItem];
 
   return (
     <div className="h-full bg-white pt-20 shadow-sidebar">
@@ -61,9 +63,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             <Link
               key={index}
               to={item.path}
-              className={`flex items-center px-2 py-2 mx-4 my-1 rounded-md 
-                text-darkBlue font-semibold
-                ${isActive ? "bg-background text-blue-600" : "hover:bg-background"}
+              className={`mx-4 my-1 flex items-center rounded-md px-2 py-2 
+                font-semibold text-darkBlue
+                ${isActive ? "text-blue-600 bg-background" : "hover:bg-background"}
               `}
             >
               {item.icon}

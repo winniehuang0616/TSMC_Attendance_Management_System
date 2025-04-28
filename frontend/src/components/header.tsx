@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface HeaderProps {
@@ -15,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <header className="fixed left-0 right-0 z-10 h-[11%] bg-white shadow-header">
       <div className="flex h-full items-center justify-between px-8">
-        <h1 className="text-darkBlue text-xl font-bold">
+        <h1 className="text-xl font-bold text-darkBlue">
           TSMC Attendance System
         </h1>
 

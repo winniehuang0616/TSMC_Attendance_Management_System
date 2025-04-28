@@ -32,7 +32,9 @@ const LoginForm: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
       <CardContent className="pt-6">
         <form className="flex flex-col space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="employeeId" className="font-semibold">員工編號</Label>
+            <Label htmlFor="employeeId" className="font-semibold">
+              員工編號
+            </Label>
             <Input
               type="text"
               id="employeeId"
@@ -43,7 +45,9 @@ const LoginForm: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="font-semibold">密碼</Label>
+            <Label htmlFor="password" className="font-semibold">
+              密碼
+            </Label>
             <Input
               type="password"
               id="password"
@@ -71,7 +75,7 @@ const LoginForm: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
           </Button>
 
           <div>
-            <a href="#" className="text-gray text-sm hover:underline">
+            <a href="#" className="text-sm text-gray hover:underline">
               忘記密碼？
             </a>
           </div>
