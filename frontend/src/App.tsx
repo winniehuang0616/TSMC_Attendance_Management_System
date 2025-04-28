@@ -1,58 +1,25 @@
+import { useState } from "react";
 import Header from "@/components/header";
-import { LeaveRecordTable } from "@/components/leaveRecordTable";
 import Sidebar from "@/components/sidebar";
 import { Toaster } from "@/components/ui/toaster";
-import { LeaveStatus } from "@/models/enum/leaveStatus";
-import type { Filter, LeaveRecord } from "@/models/leave";
-
-const records: LeaveRecord[] = [
-  {
-    id: "1",
-    type: "病假",
-    start: "2025-04-01",
-    end: "2025-04-02",
-    agent: "110-小明",
-    reason: "感冒ㄚㄚㄚㄚㄚㄚ ㄚㄚㄚㄚㄚㄚ ",
-    attachment: "病假單.pdf",
-    status: LeaveStatus.Pending,
-  },
-  {
-    id: "2",
-    type: "事假",
-    start: "2025-04-10",
-    end: "2025-04-10",
-    agent: "111-小美",
-    reason: "家中有事",
-    attachment: "",
-    status: LeaveStatus.Approved,
-  },
-  {
-    id: "3",
-    type: "公假",
-    start: "2025-04-10",
-    end: "2025-04-10",
-    agent: "112-小王",
-    reason: "心情不好",
-    attachment: "",
-    status: LeaveStatus.Rejected,
-  },
-];
+import LoginPage  from "@/LoginPage";
 
 function App() {
-  const handleSearch = (filter: Filter) => {
-    console.log("搜尋條件", filter);
-  };
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+ 
   return (
     <>
       <div className="flex h-screen flex-col">
-        <Header userName="Praful" />
+        <Header userName="Praful" isLoggedIn={isLoggedIn}/>
         <div className="flex flex-1">
+        {isLoggedIn&&
           <div className="w-[18%]">
-            <Sidebar />
-          </div>
-          <div className="flex flex-1 overflow-hidden bg-background pb-12 pl-20 pt-32">
-            <LeaveRecordTable records={records} onSearch={handleSearch} />
+            <Sidebar role="manager"/>
+          </div>}
+          <div className={`flex flex-1 overflow-hidden bg-background pt-20 ${
+    isLoggedIn ? "pb-12 pl-20"  : ""
+  }`}>
+            {!isLoggedIn&&<LoginPage setIsLoggedIn={setIsLoggedIn}/>}
             <Toaster />
           </div>
         </div>
