@@ -3,7 +3,6 @@
 from fastapi import APIRouter, HTTPException
 from schemas.user import UserInfoResponse
 from services.user_service import UserService
-from repositories.leave_repository import get_employee_balance
 
 router = APIRouter(prefix="/api/user", tags=["User"])
 
@@ -15,7 +14,7 @@ def get_userinfo(employeeId: str):
     try:
         user = UserService.get_userinfo(employeeId)
         print(user)
-        balance = get_employee_balance(employeeId)
+        remain_leave = UserService.calculate_remaining_leaves(employeeId)
     except HTTPException:
         # Service 已拋出 404 或其他 HTTPException
         raise
@@ -25,7 +24,7 @@ def get_userinfo(employeeId: str):
         email        = user.get("email"),
         phone        = user.get("phone"),
         role         = user["role"],
-        remain_leave = balance["remain_leave"]
+        remain_leave = remain_leave
     )
 
 @router.get("/department/list/{employeeId}")

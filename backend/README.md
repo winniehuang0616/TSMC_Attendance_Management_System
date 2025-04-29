@@ -9,7 +9,7 @@ git checkout -b {branch_name}
 ````
 
 #### 2. Set up .env
-`cp env.example .env` <br>
+`cp env.example src/.env` <br>
 Note: This file is used to configure database access, JWT keys, and other environment variables.
 #### 3. Create and Activate a Virtual Environment
 - venv
@@ -18,12 +18,13 @@ Note: This file is used to configure database access, JWT keys, and other enviro
 `pip install -r requirements.txt`
 #### 5. Make sure to push on the correct branch
 `git push origin {branch_name}`
-### Folder Introduction
-| Folder            | Description                         |
-|-------------------|-------------------------------------|
-| `app/controllers` | Handle API requests and responses   |
-| `app/services`    | Core business logic processing      |
-| `app/repo`        | Database operations (CRUD functions)|
+
+#### Run
+```bash
+cd src
+python -m uvicorn main:app --reload
+```
+
 ### API
 #### Spec
 https://docs.google.com/document/d/10eDYDAqADlW-cB73Pd6kmNkwoJHZ300uVCMQTq4qh74/edit?tab=t.0#heading=h.knhhsrmzd3mx
