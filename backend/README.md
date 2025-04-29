@@ -21,6 +21,7 @@ Note: This file is used to configure database access, JWT keys, and other enviro
 
 #### Run
 ```bash
+cd src
 python -m uvicorn main:app --reload
 ```
 
