@@ -8,7 +8,7 @@ INSERT INTO department (department_id) VALUES
 
 -- 插入假別資料（leave_type）
 INSERT INTO leave_type (type_id) VALUES
-(1), (2), (3); 
+(0), (1), (2), (3); 
 
 -- 插入員工資訊（employee_info）
 INSERT INTO employee_info (
@@ -25,3 +25,18 @@ INSERT INTO leave_info (
     reviewer_id, comment
 ) VALUES
 ('L001', 'EMP002', 0, '2024-05-01 09:00:00', '2024-05-02 18:00:00', 1, '年度休假', 'EMP003', NULL, NULL);
+
+INSERT INTO leave_balance (employee_id, leave_type, year, allocated_hours) VALUES
+('EMP001', 0, 2025, 24),
+('EMP001', 1, 2025, 40),
+('EMP001', 2, 2025, 80),
+('EMP001', 3, 2025, 16), -- 假設 official leave 16小時
+('EMP002', 0, 2025, 24),
+('EMP002', 1, 2025, 40),
+('EMP002', 2, 2025, 80),
+('EMP002', 3, 2025, 16),
+('EMP003', 0, 2025, 24),
+('EMP003', 1, 2025, 40),
+('EMP003', 2, 2025, 80),
+('EMP003', 3, 2025, 16);
+
