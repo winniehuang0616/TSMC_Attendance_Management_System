@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
     label: "登出",
     path: "/logout",
   };
-
+  
   const menuItems =
     role === "manager"
       ? [...commonMenuItems, ...managerExtraItems, logoutItem]
