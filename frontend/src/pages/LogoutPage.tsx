@@ -4,11 +4,10 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/authContext";
 
 export default function LogoutPage() {
-  const { setIsLoggedIn } = useAuth();
+  const { logout } = useAuth();
 
   useEffect(() => {
-    sessionStorage.clear();
-    setIsLoggedIn(false);
+    logout();
   }, []);
 
   return <Navigate to="/" replace />;

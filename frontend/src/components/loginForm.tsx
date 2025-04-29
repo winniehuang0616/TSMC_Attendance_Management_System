@@ -11,7 +11,7 @@ import { Label } from "./ui/label";
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
-  const { setIsLoggedIn } = useAuth();
+  const { login } = useAuth();
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
   const [rememberPassword, setRememberPassword] = useState(false);
@@ -24,9 +24,7 @@ const LoginForm: React.FC = () => {
       rememberPassword,
     });
     // 透過 api 取得登入資訊
-    sessionStorage.setItem("userName", "winnie");
-    sessionStorage.setItem("role", "manager");
-    setIsLoggedIn(true);
+    login("winnie", "manager");
     navigate("/apply-form");
   };
 
