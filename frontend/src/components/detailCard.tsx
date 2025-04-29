@@ -1,4 +1,6 @@
-import { Trash2, Eye } from "lucide-react";
+import { useState } from "react";
+
+import { Trash2, Eye, PencilLine } from "lucide-react";
 
 import { toast } from "@/components/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -13,26 +15,21 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Detail } from "@/models/detail";
+import type { LeaveRecord } from "@/models/leave";
 
-const detailData: Detail = {
-  id: 1,
-  name: "111-王小明",
-  type: "病假",
-  startDate: new Date("2025-04-23"),
-  endDate: new Date("2025-04-30"),
-  startTime: "09:00",
-  endTime: "17:00",
-  agent: "111-王小明",
-  reason: "感冒看醫生",
-  file: "file1.txt",
-  result: true,
-  description: "在家好好休息",
-  status: true,
-};
+interface DetailCardProps {
+  detailData: LeaveRecord;
+}
 
-export function DetailCard() {
+export function DetailCard({ detailData }: DetailCardProps) {
+  const [checked, setChecked] = useState<true | false | null>(null);
+  const [description, setDescription] = useState(detailData.description || "");
+  const [open, setOpen] = useState(false);
+  const [checkedError, setCheckedError] = useState(false);
+  const [descriptionError, setDescriptionError] = useState(false);
+
   const handleDelete = () => {
+    // 透過 api 刪除請假單
     console.log(detailData.id);
     if (detailData.startDate > new Date()) {
       toast({
@@ -47,14 +44,53 @@ export function DetailCard() {
     }
   };
 
+  const handleSubmit = () => {
+    let hasError = false;
+
+    if (checked === null) {
+      setCheckedError(true);
+      hasError = true;
+    } else {
+      setCheckedError(false);
+    }
+
+    if (!description.trim()) {
+      setDescriptionError(true);
+      hasError = true;
+    } else {
+      setDescriptionError(false);
+    }
+
+    if (hasError) return;
+
+    const payload = {
+      id: detailData.id,
+      status: checked ? "已核准" : "已退回",
+      description: description.trim(),
+    };
+
+    // 透過 API 更新假單
+    console.log("送出請求", payload);
+
+    toast({
+      title: "已送出簽核結果",
+    });
+    setOpen(false);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple">
-          {detailData.status ? (
-            <Trash2 size={24} strokeWidth={2} color="blue" />
-          ) : (
+        <div
+          onClick={() => setOpen(true)}
+          className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple"
+        >
+          {detailData.status === "已退回" ? (
             <Eye size={24} strokeWidth={2} color="#FF4170" />
+          ) : detailData.status === "已核准" ? (
+            <Trash2 size={24} strokeWidth={2} />
+          ) : (
+            <PencilLine size={24} strokeWidth={2} color="blue" />
           )}
         </div>
       </DialogTrigger>
@@ -143,38 +179,66 @@ export function DetailCard() {
             </Label>
             <Input
               id="file"
-              defaultValue={detailData.file}
+              defaultValue={detailData.attachment}
               className="h-[30px]"
               disabled
             />
           </div>
           <div className="flex items-center gap-2">
-            <Label htmlFor="result" className="w-1/4 font-semibold">
+            <Label
+              htmlFor="result"
+              className={`w-1/4 font-semibold ${checkedError ? "text-pink" : ""}`}
+            >
               核准結果
             </Label>
             <div className="flex h-[30px] gap-4">
               <div className="flex items-center gap-1">
-                <Checkbox
-                  checked={detailData.status === true}
-                  disabled
-                  id="approve"
-                />
+                {detailData.status === "審核中" ? (
+                  <Checkbox
+                    checked={checked == true}
+                    onCheckedChange={() => {
+                      setChecked(checked === true ? false : true);
+                    }}
+                    id="approve"
+                  />
+                ) : (
+                  <Checkbox
+                    checked={detailData.status === "已核准"}
+                    disabled
+                    id="approve"
+                  />
+                )}
+
                 <Label
                   htmlFor="approve"
-                  className={detailData.status === true ? "font-semibold" : ""}
+                  className={
+                    detailData.status === "已核准" ? "font-semibold" : ""
+                  }
                 >
                   通過
                 </Label>
               </div>
               <div className="flex items-center gap-1">
-                <Checkbox
-                  checked={detailData.status === false}
-                  disabled
-                  id="reject"
-                />
+                {detailData.status === "審核中" ? (
+                  <Checkbox
+                    checked={checked == false}
+                    onCheckedChange={() => {
+                      setChecked(checked === false ? true : false);
+                    }}
+                    id="reject"
+                  />
+                ) : (
+                  <Checkbox
+                    checked={detailData.status === "已退回"}
+                    disabled
+                    id="reject"
+                  />
+                )}
                 <Label
                   htmlFor="reject"
-                  className={detailData.status === false ? "font-semibold" : ""}
+                  className={
+                    detailData.status === "已退回" ? "font-semibold" : ""
+                  }
                 >
                   未通過
                 </Label>
@@ -182,19 +246,23 @@ export function DetailCard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Label htmlFor="description" className="w-1/3 font-semibold">
+            <Label
+              htmlFor="description"
+              className={`w-1/3 font-semibold ${descriptionError ? "text-pink" : ""}`}
+            >
               核准理由
             </Label>
             <Input
               id="description"
-              defaultValue={detailData.description}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="h-[30px] border-zinc-400 font-semibold"
-              disabled
+              disabled={detailData.status != "審核中"}
             />
           </div>
         </div>
         <DialogFooter className="flex justify-start">
-          {detailData.status === true && (
+          {detailData.status === "已核准" && (
             <DialogClose asChild>
               <Button
                 type="button"
@@ -204,6 +272,15 @@ export function DetailCard() {
                 刪除
               </Button>
             </DialogClose>
+          )}
+          {detailData.status === "審核中" && (
+            <Button
+              type="button"
+              className="bg-blue hover:bg-blue/90"
+              onClick={handleSubmit}
+            >
+              送出
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>

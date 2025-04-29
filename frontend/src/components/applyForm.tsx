@@ -33,6 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Agent } from "@/models/detail";
 
+// 透過 api 取得代理人
 const agentData: Agent[] = [
   { id: 1, name: "111-王小明" },
   { id: 2, name: "112-陳美惠" },
@@ -85,6 +86,7 @@ export function ApplyForm() {
   }
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    // 透過 api 新增請假表單
     toast({
       title: "請假表單已送出",
     });

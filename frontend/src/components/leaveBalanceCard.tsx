@@ -1,26 +1,17 @@
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-
-export type LeaveBalanceCardProps = {
-  type: string;
-  used: number;
-  total: number;
-  remainingText: string;
-  className?: string;
-};
+import type { LeaveCard } from "@/models/card";
 
 export function LeaveBalanceCard({
   type,
   used,
   total,
   remainingText,
-  className,
-}: LeaveBalanceCardProps) {
+}: LeaveCard) {
   return (
     <Card
       className={cn(
-        "flex h-[120px] w-full max-w-[150px] flex-col justify-center rounded-2xl shadow-md",
-        className,
+        "flex h-[120px] max-w-[150px] flex-col justify-center rounded-2xl shadow-md",
       )}
     >
       <CardContent className="flex flex-col justify-center p-4">

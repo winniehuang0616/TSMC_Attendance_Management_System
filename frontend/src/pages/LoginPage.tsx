@@ -1,10 +1,6 @@
-import LoginForm from "./components/loginForm";
+import LoginForm from "../components/loginForm";
 
-export type loginProps = {
-  setIsLoggedIn: (isLoggedIn: boolean) => void;
-};
-
-function LoginPage({ setIsLoggedIn }: loginProps) {
+function LoginPage() {
   return (
     <main className="mx-auto flex w-full flex-row px-20">
       <div className="flex w-[45%] flex-col justify-center pl-12">
@@ -20,7 +16,7 @@ function LoginPage({ setIsLoggedIn }: loginProps) {
         </p>
       </div>
       <div className="flex w-[55%] items-center justify-center">
-        <LoginForm setIsLoggedIn={setIsLoggedIn} />
+        <LoginForm />
       </div>
     </main>
   );
