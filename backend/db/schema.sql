@@ -9,7 +9,7 @@ CREATE TABLE leave_type (
 );
 
 -- Table: department
-CREATE TABLE department (
+CREATE TABLE department_id (
     department_id VARCHAR(20) PRIMARY KEY,
     INDEX(department_id)
 );

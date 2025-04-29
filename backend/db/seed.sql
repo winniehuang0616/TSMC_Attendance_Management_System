@@ -1,6 +1,6 @@
 USE leave_management;
 
-INSERT INTO department (department_id) VALUES
+INSERT INTO department_id (department_id) VALUES
 ('BSID'),
 ('AAID'),
 ('ICSD'),
