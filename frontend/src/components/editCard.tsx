@@ -39,41 +39,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import type { Agent, Detail } from "@/models/detail";
+import type { Agent } from "@/models/detail";
+import type { LeaveRecord } from "@/models/leave";
 
-const detailData: Detail = {
-  id: 1,
-  name: "111-王小明",
-  type: "病假",
-  startDate: new Date("2025-04-01"),
-  endDate: new Date("2025-4-3"),
-  startTime: "9",
-  endTime: "17",
-  agent: "111-王小明",
-  reason: "感冒看醫生",
-  file: "file1.txt",
-  result: true,
-  description: "請在家好好休息",
-};
-
+// 透過 api 取得代理人清單
 const agentData: Agent[] = [
   { id: 1, name: "111-王小明" },
   { id: 2, name: "112-陳美惠" },
   { id: 3, name: "113-黃玲玲" },
 ];
 
+interface EditCardProps {
+  detailData: LeaveRecord;
+}
+
 const FormSchema = z.object({
   start: z.date(),
   end: z.date(),
-  startHour: z.string().min(1),
-  endHour: z.string().min(1),
+  startHour: z.number().min(1),
+  endHour: z.number().min(1),
   type: z.string().min(1),
   agent: z.string().min(1),
-  reason: z.string().min(1),
+  reason: z.string().trim().min(1),
   file: z.any().optional(),
 });
 
-export function EditCard() {
+export function EditCard({ detailData }: EditCardProps) {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -85,7 +76,7 @@ export function EditCard() {
       type: detailData.type,
       agent: detailData.agent,
       reason: detailData.reason,
-      file: detailData.file,
+      file: detailData.attachment,
     },
   });
 
@@ -93,6 +84,7 @@ export function EditCard() {
   const [fileName, setFileName] = useState("");
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    // 透過 api 更新請假資料
     toast({
       title: "請假表單內容已更新",
     });
@@ -102,7 +94,7 @@ export function EditCard() {
     <Dialog>
       <DialogTrigger asChild>
         <div className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple">
-          <PencilLine size={24} strokeWidth={2} />
+          <PencilLine size={24} strokeWidth={2} color="blue" />
         </div>
       </DialogTrigger>
 
@@ -186,7 +178,7 @@ export function EditCard() {
                                         {...hourField}
                                         onChange={(e) => {
                                           const val = parseInt(e.target.value);
-                                          hourField.onChange(e.target.value);
+                                          hourField.onChange(val);
                                           const base =
                                             form.getValues(
                                               fieldKey as "start" | "end",
@@ -294,7 +286,7 @@ export function EditCard() {
                         >
                           <UploadCloudIcon className="mr-2 h-6 w-6" />
                           <p className="text-sm">
-                            {fileName || detailData.file}
+                            {fileName || detailData.attachment}
                           </p>
                         </label>
                         <input

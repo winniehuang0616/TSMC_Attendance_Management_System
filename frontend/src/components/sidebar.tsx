@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { FileText, FileSpreadsheet, LogOut } from "lucide-react";
 
 interface SidebarProps {
-  role: "employee" | "manager";
+  role?: "employee" | "manager";
 }
 
 interface SidebarItem {
@@ -14,18 +14,18 @@ interface SidebarItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ role }) => {
-  const location = useLocation(); // 拿到目前網址
+  const location = useLocation();
 
   const commonMenuItems: SidebarItem[] = [
     {
       icon: <FileText className="mr-2 h-5 w-5" />,
       label: "請假申請",
-      path: "/leave-request",
+      path: "/apply-form",
     },
     {
       icon: <FileSpreadsheet className="mr-2 h-5 w-5" />,
       label: "請假資訊總覽",
-      path: "/leave-overview",
+      path: "/personal-overview",
     },
   ];
 
@@ -54,10 +54,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
       : [...commonMenuItems, logoutItem];
 
   return (
-    <div className="h-full bg-white pt-20 shadow-sidebar">
+    <div className="fixed left-0 top-0 z-10 h-full w-[18%] bg-white pt-20 shadow-sidebar">
       <nav className="flex flex-col">
         {menuItems.map((item, index) => {
-          const isActive = location.pathname === item.path; // 👈 比對目前路徑
+          const isActive = location.pathname === item.path;
 
           return (
             <Link

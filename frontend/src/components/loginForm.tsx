@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "@/context/authContext";
 
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -6,25 +9,25 @@ import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
-interface LoginProps {
-  setIsLoggedIn: (loggedIn: boolean) => void;
-}
-
-const LoginForm: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
+const LoginForm: React.FC = () => {
+  const navigate = useNavigate();
+  const { setIsLoggedIn } = useAuth();
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
   const [rememberPassword, setRememberPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoggedIn(true);
     console.log("Login attempt with:", {
       employeeId,
       password,
       rememberPassword,
     });
-    // 實際應用中，這裡會發送認證請求到後端
-    // 認證成功後導向到請假記錄頁面
+    // 透過 api 取得登入資訊
+    sessionStorage.setItem("userName", "winnie");
+    sessionStorage.setItem("role", "manager");
+    setIsLoggedIn(true);
+    navigate("/apply-form");
   };
 
   return (
