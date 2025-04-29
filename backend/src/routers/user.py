@@ -14,7 +14,7 @@ def get_userinfo(employeeId: str):
     try:
         user = UserService.get_userinfo(employeeId)
         print(user)
-        remain_leave = UserService.calculate_remaining_leaves(employeeId)
+        used_leave = UserService.get_used_hours(employeeId)
     except HTTPException:
         # Service 已拋出 404 或其他 HTTPException
         raise
@@ -24,7 +24,7 @@ def get_userinfo(employeeId: str):
         email        = user.get("email"),
         phone        = user.get("phone"),
         role         = user["role"],
-        remain_leave = remain_leave
+        used_leave = used_leave
     )
 
 @router.get("/department/list/{employeeId}")

@@ -44,26 +44,29 @@ def get_used_leaves(employee_id):
         
         current_year = str(datetime.now().year)
         sql = """
-            SELECT leave_type, SUM(TIMESTAMPDIFF(HOUR, start_time, end_time))
+            SELECT leave_type, SUM(TIMESTAMPDIFF(HOUR, start_time, end_time)) AS used_hours
             FROM leave_info
             WHERE employee_id = %s
-              AND status = 1  -- 只算核准
               AND YEAR(start_time) = %s
             GROUP BY leave_type
         """
         cursor.execute(sql, (employee_id, current_year))
         rows = cursor.fetchall()
-        used = {k: 0 for k in TYPE_MAP}
+        used = {name: 0 for name in TYPE_MAP}
         print("[DEBUG] get_used_leaves rows:", rows)  # ⭐ 加這行 debug
 
-        for leave_type_id, hrs in rows:
+        for row in rows:
+            leave_type_id = row['leave_type']
+            hrs = row['used_hours']
             leave_type_name = REVERSE_TYPE_MAP.get(leave_type_id)
             if leave_type_name:
-                used[leave_type_name] = hrs or 0 # 0 is for None
+                used[leave_type_name] = float(hrs or 0)
+
         return {
             "employee_id": employee_id,
             "used_hours": used
         }
+
     finally:
         cursor.close()
         conn.close()
