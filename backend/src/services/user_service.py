@@ -2,17 +2,38 @@
 
 from fastapi import HTTPException
 from repositories.employee_repository import get_employee_by_id, get_employee_id_under_manager
-from repositories.leave_repository    import get_employee_balance, get_leaves_by_employee, get_attendance_by_employee
+from repositories.leave_repository    import get_allocated_leaves, get_used_leaves, get_leaves_by_employee, get_attendance_by_employee
 
 class UserService:
+    @staticmethod
+    def calculate_remaining_leaves(employeeId: str) -> dict:
+        """
+        自行撈 allocated + used，計算剩餘假別時數
+        """
+        allocated_data = get_allocated_leaves(employeeId)  # dict with 'employee_id' and 'allocated_hours'
+        used_data = get_used_leaves(employeeId)            # dict with 'employee_id' and 'used_hours'
+
+        allocated = allocated_data["allocated_hours"]  
+        used = used_data["used_hours"]                  
+
+        remain = {}
+        for leave_type in allocated.keys():  
+            remain[leave_type] = max(
+                0,
+                float(allocated.get(leave_type, 0)) - float(used.get(leave_type, 0))
+            )
+
+        return remain
+    
     @staticmethod
     def get_userinfo(employeeId: str) -> dict:
         # 撈員工基本資料
         user = get_employee_by_id(employeeId)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        # 撈假期餘額
-        remain = get_employee_balance(employeeId)      # e.g. {"annual":56, ...}
+        
+        remain = UserService.calculate_remaining_leaves(employeeId)
+        
         # 撈請假紀錄
         leaves = get_leaves_by_employee(employeeId)     # list[dict]
         # 組成回傳格式

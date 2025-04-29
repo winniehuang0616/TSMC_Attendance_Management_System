@@ -18,12 +18,12 @@ Note: This file is used to configure database access, JWT keys, and other enviro
 `pip install -r requirements.txt`
 #### 5. Make sure to push on the correct branch
 `git push origin {branch_name}`
-### Folder Introduction
-| Folder            | Description                         |
-|-------------------|-------------------------------------|
-| `app/controllers` | Handle API requests and responses   |
-| `app/services`    | Core business logic processing      |
-| `app/repo`        | Database operations (CRUD functions)|
+
+#### Run
+```bash
+python -m uvicorn main:app --reload
+```
+
 ### API
 #### Spec
 https://docs.google.com/document/d/10eDYDAqADlW-cB73Pd6kmNkwoJHZ300uVCMQTq4qh74/edit?tab=t.0#heading=h.knhhsrmzd3mx

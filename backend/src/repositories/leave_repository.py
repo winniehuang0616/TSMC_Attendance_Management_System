@@ -6,33 +6,68 @@ from repositories.db_connection import get_db_connection
 logger = logging.getLogger(__name__)
 
 # leave_type 與資料庫對應
-TYPE_MAP = {'annual': 1, 'sick': 2, 'personal': 3, 'official': 4}
+TYPE_MAP = {'annual': 2, 'sick': 1, 'personal': 0, 'official': 3}
 REVERSE_TYPE_MAP = {v: k for k, v in TYPE_MAP.items()}
 # 狀態映射
 STATUS_MAP = {0: 'pending', 1: 'approved', 2: 'rejected'}
 REVERSE_STATUS_MAP = {v: k for k, v in STATUS_MAP.items()}
 
 
-def get_employee_balance(employee_id):
+def get_allocated_leaves(employee_id):
     conn, cursor = get_db_connection()
     try:
-        # 讀取當年假別餘額
+        # 讀取當年價別總時數
         year = str(datetime.now().year)
         sql = "SELECT leave_type, allocated_hours FROM leave_balance WHERE employee_id = %s AND year = %s"
         cursor.execute(sql, (employee_id, year))
         rows = cursor.fetchall()
-        remain = {k: 0 for k in TYPE_MAP}
-        for lt, hrs in rows:
-            key = REVERSE_TYPE_MAP.get(lt)
-            if key:
-                remain[key] = hrs
+        print("[DEBUG] get_allocated_leaves rows:", rows)  # ⭐ 加這行 debug
+
+        allocated = {k: 0 for k in TYPE_MAP}
+        for row in rows:
+            leave_type_id = row['leave_type']
+            hrs = row['allocated_hours']
+            leave_type_name = REVERSE_TYPE_MAP.get(leave_type_id)
+            if leave_type_name:
+                allocated[leave_type_name] = hrs
         return {
             "employee_id": employee_id,
-            "remain_leave": remain
+            "allocated_hours": allocated
         }
     finally:
         cursor.close()
         conn.close()
+
+def get_used_leaves(employee_id):
+    conn, cursor = get_db_connection()
+    try:
+        
+        current_year = str(datetime.now().year)
+        sql = """
+            SELECT leave_type, SUM(TIMESTAMPDIFF(HOUR, start_time, end_time))
+            FROM leave_info
+            WHERE employee_id = %s
+              AND status = 1  -- 只算核准
+              AND YEAR(start_time) = %s
+            GROUP BY leave_type
+        """
+        cursor.execute(sql, (employee_id, current_year))
+        rows = cursor.fetchall()
+        used = {k: 0 for k in TYPE_MAP}
+        print("[DEBUG] get_used_leaves rows:", rows)  # ⭐ 加這行 debug
+
+        for leave_type_id, hrs in rows:
+            leave_type_name = REVERSE_TYPE_MAP.get(leave_type_id)
+            if leave_type_name:
+                used[leave_type_name] = hrs or 0 # 0 is for None
+        return {
+            "employee_id": employee_id,
+            "used_hours": used
+        }
+    finally:
+        cursor.close()
+        conn.close()
+
 
 def get_leaves_by_employee(employee_id: str) -> list[dict]:
     """
