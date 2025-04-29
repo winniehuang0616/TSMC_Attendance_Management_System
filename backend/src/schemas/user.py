@@ -13,4 +13,4 @@ class UserInfoResponse(BaseModel):
     email: Optional[str]
     phone: Optional[str]
     role: RoleEnum
-    remain_leave: Dict[str, int]
+    used_leave: Dict[str, int]
