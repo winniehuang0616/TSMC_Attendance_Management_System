@@ -9,7 +9,7 @@ git checkout -b {branch_name}
 ````
 
 #### 2. Set up .env
-`cp env.example .env` <br>
+`cp env.example src/.env` <br>
 Note: This file is used to configure database access, JWT keys, and other environment variables.
 #### 3. Create and Activate a Virtual Environment
 - venv
