@@ -14,3 +14,7 @@ class UserInfoResponse(BaseModel):
     phone: Optional[str]
     role: RoleEnum
     used_leave: Dict[str, int]
+
+class EmployeeInfoResponse(BaseModel):
+    id: str
+    name: str

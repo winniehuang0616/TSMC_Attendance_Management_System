@@ -67,3 +67,34 @@ def get_employee_id_under_manager(employee_id):
     finally:
         cursor.close()
         conn.close()
+
+# 查詢代理人可選名單
+def fetch_agents_by_employee_id(employee_id):
+    """
+    回傳與指定員工在同一部門的其他員工（身分為 'employee'）。
+    """
+    conn, cursor = get_db_connection()
+    try:
+        # 取得該員工的部門
+        sql = "SELECT department_id FROM employee_info WHERE employee_id = %s"
+        cursor.execute(sql, (employee_id,))
+        row = cursor.fetchone()
+        if not row:
+            return []
+
+        department = row['department_id']
+
+        # 查詢同部門員工（排除自己），且限定 role = 'employee'
+        sql2 = """
+            SELECT employee_id, name 
+            FROM employee_info 
+            WHERE department_id = %s 
+              AND employee_id != %s 
+              AND role = 'employee'
+        """
+        cursor.execute(sql2, (department, employee_id))
+        rows = cursor.fetchall()
+        return [{'id': r['employee_id'], 'name': r['name']} for r in rows]
+    finally:
+        cursor.close()
+        conn.close()
