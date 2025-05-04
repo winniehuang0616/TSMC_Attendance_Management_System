@@ -284,13 +284,15 @@ def delete_leave_form(leave_id):
     conn, cursor = get_db_connection()
     try:
         cursor.execute(
-            "SELECT status, start_time FROM leave_info WHERE leave_id = %s", (leave_id,)
+            "SELECT status, start_time, reviewer_id, employee_id FROM leave_info WHERE leave_id = %s", (leave_id,)
         )
         row = cursor.fetchone()
         if not row:
             return False
         status = row['status']
         st = row['start_time']
+        reviewer_id = row['reviewer_id']
+        employee_id = row['employee_id']
         now = datetime.now()
         # Pending 或 審核後開始時間前 均可刪除
         if status != 0 and now >= st[0]:
@@ -299,7 +301,7 @@ def delete_leave_form(leave_id):
             "DELETE FROM leave_info WHERE leave_id = %s", (leave_id,)
         )
         conn.commit()
-        return True
+        return True, reviewer_id, employee_id
     except:
         conn.rollback()
         raise
