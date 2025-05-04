@@ -26,8 +26,6 @@ export type Filter = {
 };
 
 export type Props = {
-  records: LeaveRecord[];
-  onSearch?: (filter: Filter) => void;
   type: TableType;
   employeeData?: Agent[];
 };

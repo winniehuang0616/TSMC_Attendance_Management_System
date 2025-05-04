@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import axios from "axios";
 import { Trash2, Eye, PencilLine } from "lucide-react";
 
 import { toast } from "@/components/hooks/use-toast";
@@ -17,29 +18,45 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { LeaveRecord } from "@/models/leave";
 
+const leaveTypeLabel: Record<string, string> = {
+  annual: "特休",
+  sick: "病假",
+  personal: "事假",
+  official: "公假",
+};
+
 interface DetailCardProps {
   detailData: LeaveRecord;
+  onDeleted: () => void;
 }
 
-export function DetailCard({ detailData }: DetailCardProps) {
+export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
   const [checked, setChecked] = useState<true | false | null>(null);
   const [description, setDescription] = useState(detailData.description || "");
   const [open, setOpen] = useState(false);
   const [checkedError, setCheckedError] = useState(false);
   const [descriptionError, setDescriptionError] = useState(false);
 
-  const handleDelete = () => {
-    // 透過 api 刪除請假單
-    console.log(detailData.id);
-    if (detailData.startDate > new Date()) {
-      toast({
-        title: "撤回假單",
-        description: `已向主管發送撤回信件`,
-      });
-    } else {
+  const handleDelete = async () => {
+    try {
+      if (detailData.startDate > new Date()) {
+        await axios.delete(`http://localhost:8000/api/leaves/${detailData.id}`);
+        onDeleted();
+        toast({
+          title: "撤回假單",
+          description: `已向主管發送撤回信件`,
+        });
+      } else {
+        toast({
+          title: "撤回失敗",
+          description: `假單已過期，無法撤回`,
+        });
+      }
+    } catch (error) {
+      console.error("刪除請假單失敗：", error);
       toast({
         title: "撤回失敗",
-        description: `假單已過期，無法撤回`,
+        description: `撤回請假單時發生錯誤`,
       });
     }
   };
@@ -85,9 +102,9 @@ export function DetailCard({ detailData }: DetailCardProps) {
           onClick={() => setOpen(true)}
           className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple"
         >
-          {detailData.status === "已退回" ? (
+          {detailData.status === "rejected" ? (
             <Eye size={24} strokeWidth={2} color="#FF4170" />
-          ) : detailData.status === "已核准" ? (
+          ) : detailData.status === "approved" ? (
             <Trash2 size={24} strokeWidth={2} />
           ) : (
             <PencilLine size={24} strokeWidth={2} color="blue" />
@@ -116,7 +133,7 @@ export function DetailCard({ detailData }: DetailCardProps) {
             </Label>
             <Input
               id="type"
-              defaultValue={detailData.type}
+              defaultValue={leaveTypeLabel[detailData.type]}
               className="h-[30px]"
               disabled
             />
@@ -130,7 +147,8 @@ export function DetailCard({ detailData }: DetailCardProps) {
               defaultValue={
                 detailData.startDate.toLocaleDateString() +
                 " " +
-                detailData.startTime
+                detailData.startTime +
+                ":00:00"
               }
               className="h-[30px]"
               disabled
@@ -145,7 +163,8 @@ export function DetailCard({ detailData }: DetailCardProps) {
               defaultValue={
                 detailData.endDate.toLocaleDateString() +
                 " " +
-                detailData.endTime
+                detailData.endTime +
+                ":00:00"
               }
               className="h-[30px]"
               disabled
@@ -193,7 +212,7 @@ export function DetailCard({ detailData }: DetailCardProps) {
             </Label>
             <div className="flex h-[30px] gap-4">
               <div className="flex items-center gap-1">
-                {detailData.status === "審核中" ? (
+                {detailData.status === "pending" ? (
                   <Checkbox
                     checked={checked == true}
                     onCheckedChange={() => {
@@ -203,7 +222,7 @@ export function DetailCard({ detailData }: DetailCardProps) {
                   />
                 ) : (
                   <Checkbox
-                    checked={detailData.status === "已核准"}
+                    checked={detailData.status === "approved"}
                     disabled
                     id="approve"
                   />
@@ -212,14 +231,14 @@ export function DetailCard({ detailData }: DetailCardProps) {
                 <Label
                   htmlFor="approve"
                   className={
-                    detailData.status === "已核准" ? "font-semibold" : ""
+                    detailData.status === "approved" ? "font-semibold" : ""
                   }
                 >
                   通過
                 </Label>
               </div>
               <div className="flex items-center gap-1">
-                {detailData.status === "審核中" ? (
+                {detailData.status === "pending" ? (
                   <Checkbox
                     checked={checked == false}
                     onCheckedChange={() => {
@@ -229,7 +248,7 @@ export function DetailCard({ detailData }: DetailCardProps) {
                   />
                 ) : (
                   <Checkbox
-                    checked={detailData.status === "已退回"}
+                    checked={detailData.status === "rejected"}
                     disabled
                     id="reject"
                   />
@@ -237,7 +256,7 @@ export function DetailCard({ detailData }: DetailCardProps) {
                 <Label
                   htmlFor="reject"
                   className={
-                    detailData.status === "已退回" ? "font-semibold" : ""
+                    detailData.status === "rejected" ? "font-semibold" : ""
                   }
                 >
                   未通過
@@ -257,12 +276,12 @@ export function DetailCard({ detailData }: DetailCardProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="h-[30px] border-zinc-400 font-semibold"
-              disabled={detailData.status != "審核中"}
+              disabled={detailData.status != "pending"}
             />
           </div>
         </div>
         <DialogFooter className="flex justify-start">
-          {detailData.status === "已核准" && (
+          {detailData.status === "approved" && (
             <DialogClose asChild>
               <Button
                 type="button"
@@ -273,7 +292,7 @@ export function DetailCard({ detailData }: DetailCardProps) {
               </Button>
             </DialogClose>
           )}
-          {detailData.status === "審核中" && (
+          {detailData.status === "pending" && (
             <Button
               type="button"
               className="bg-blue hover:bg-blue/90"
