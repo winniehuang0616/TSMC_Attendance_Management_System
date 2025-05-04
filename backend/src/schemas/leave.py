@@ -38,7 +38,7 @@ class LeaveUpdateRequest(BaseModel):
     startDate: datetime
     endDate: datetime
     reason: Optional[str] = None
-    attachedFileBase64: Optional[str] = None
+    attachmentBase64: Optional[str] = None # 統一改為 attachmentBase64
     agentId: Optional[str] = None
 
 class ReviewRequest(BaseModel):

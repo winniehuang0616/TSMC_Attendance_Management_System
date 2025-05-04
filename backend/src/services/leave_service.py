@@ -42,7 +42,7 @@ class LeaveService:
             "startDate":        req.startDate.strftime("%Y-%m-%d-%H-%M"),
             "endDate":          req.endDate.strftime("%Y-%m-%d-%H-%M"),
             "reason":           req.reason,
-            "attachmentBase64": req.attachedFileBase64,
+            "attachmentBase64": req.attachmentBase64, # 統一改為 attachmentBase64
             "agentId":          req.agentId
         }
         success = update_leave_form(leaveId, data)
