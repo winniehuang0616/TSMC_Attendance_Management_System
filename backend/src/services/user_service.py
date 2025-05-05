@@ -8,9 +8,9 @@ class UserService:
     @staticmethod
     def get_used_hours(employeeId: str) -> dict:
         """
-        自行撈 allocated + used，計算剩餘假別時數
+        回傳四價別已使用天數
         """
-        used_data = get_used_leaves(employeeId)            # dict with 'employee_id' and 'used_hours'
+        used_data = get_used_leaves(employeeId)            
         used = used_data["used_hours"]                  
 
         result = {}        
@@ -57,7 +57,7 @@ class UserService:
         """
         取得該員工的考勤紀錄，並回傳 list[dict]。
         """
-        user = get_employee_by_id(employeeId)
+
         user = get_employee_by_id(employeeId)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -67,3 +67,34 @@ class UserService:
         # 撈該員工考勤紀錄
         attendance = get_attendance_by_employee(employeeId)
         return attendance
+
+    @staticmethod
+    def get_department_employees_details(employeeId: str):
+        # 檢查employeeId是否為manager
+        requester = get_employee_by_id(employeeId)
+        if requester is None:
+            raise HTTPException(status_code=404, detail="Employee not found")
+        elif requester['role'] != "manager":
+            raise HTTPException(status_code = 403, detail = "only managers can perform this action")
+        #取得該部門所有員工ID except 主管
+        employee_ids = get_employee_id_under_manager(employeeId)
+        
+        #組成回傳資料(用ID查&拼資料)
+        employees_info = []
+        for id in employee_ids:
+            emp_info = get_employee_by_id(id)
+            leave_info = UserService.get_used_hours(id)
+            employee_detail = {
+                "employee_id": id,
+                "name": emp_info['name'],
+                "phone": emp_info['phone'],
+                "email": emp_info['email'],
+                "remain_leave": leave_info
+            }
+            employees_info.append(employee_detail)
+
+        return employees_info
+
+
+                 
+            
