@@ -234,6 +234,7 @@ def update_leave_form(leave_id, data):
         lt = TYPE_MAP[data['leaveType']]
         new_st = datetime.strptime(data['startDate'], "%Y-%m-%d-%H-%M")
         new_et = datetime.strptime(data['endDate'], "%Y-%m-%d-%H-%M")
+        print("new_st:", data["attachmentBase64"])
         sql = (
             "UPDATE leave_info SET leave_type = %s, start_time = %s, end_time = %s, "
             "reason = %s, attachment_base64 = %s, agent_id = %s WHERE leave_id = %s"
@@ -296,10 +297,10 @@ def delete_leave_form(leave_id):
         reviewer_id = row['reviewer_id']
         employee_id = row['employee_id']
         now = datetime.now()
-        # Pending 或 審核後開始時間前 均可刪除
-        if status != 0 and now >= st[0]:
+        # Pending 或 審核後開始時間前 均可刪除 (st 不用 [0] 我直接改了)
+        if status != 0 and now >= st:
             raise ValueError("Cannot delete leave after start time")
-        rows = cursor.execute(
+        row = cursor.execute(
             "DELETE FROM leave_info WHERE leave_id = %s", (leave_id,)
         )
         conn.commit()

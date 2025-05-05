@@ -2,8 +2,9 @@ import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { format, setHours } from "date-fns";
-import { CalendarIcon, UploadCloudIcon } from "lucide-react";
+import { CalendarIcon, UploadCloudIcon, XIcon } from "lucide-react";
 import { PencilLine } from "lucide-react";
 import { z } from "zod";
 
@@ -46,12 +47,20 @@ import type { LeaveRecord } from "@/models/leave";
 const agentData: Agent[] = [
   { id: 1, name: "111-王小明" },
   { id: 2, name: "112-陳美惠" },
-  { id: 3, name: "113-黃玲玲" },
+  { id: 3, name: "EMP003" },
 ];
 
 interface EditCardProps {
   detailData: LeaveRecord;
+  onDeleted: () => void;
 }
+
+const leaveTypeLabel: Record<string, string> = {
+  annual: "特休",
+  sick: "病假",
+  personal: "事假",
+  official: "公假",
+};
 
 const FormSchema = z.object({
   start: z.date(),
@@ -64,8 +73,14 @@ const FormSchema = z.object({
   file: z.any().optional(),
 });
 
-export function EditCard({ detailData }: EditCardProps) {
+export function EditCard({ detailData, onDeleted }: EditCardProps) {
   const { toast } = useToast();
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    typeof detailData.attachment === "string" && detailData.attachment !== "--"
+      ? detailData.attachment
+      : null,
+  );
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -81,15 +96,82 @@ export function EditCard({ detailData }: EditCardProps) {
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState("");
-
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    // 透過 api 更新請假資料
-    toast({
-      title: "請假表單內容已更新",
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
     });
-    console.log(data);
-  }
+  };
+
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    if (data.start > data.end) {
+      toast({
+        title: "時間錯誤",
+        description: "結束時間必須在開始時間之後",
+      });
+      return;
+    }
+    const leaveId = detailData.id;
+    // 調整時間，並且將其轉換為 UTC
+    const startDate = new Date(data.start);
+    const endDate = new Date(data.end);
+    const localOffset = startDate.getTimezoneOffset();
+    startDate.setMinutes(startDate.getMinutes() - localOffset);
+    endDate.setMinutes(endDate.getMinutes() - localOffset);
+    const utcStartDate = startDate.toISOString();
+    const utcEndDate = endDate.toISOString();
+    // 將檔案轉換為 base64
+    let attachment = "";
+    if (data.file) {
+      attachment = await fileToBase64(data.file);
+    }
+
+    const payload = {
+      leaveType: data.type,
+      startDate: utcStartDate,
+      endDate: utcEndDate,
+      reason: data.reason,
+      attachmentBase64: attachment,
+      agentId: data.agent,
+    };
+    axios
+      .put(`http://localhost:8000/api/leaves/${leaveId}`, payload)
+      .then((response) => {
+        toast({
+          title: "請假表單內容已更新",
+          description: "請假資料更新成功！",
+        });
+        console.log("更新成功:", response);
+        onDeleted();
+      })
+      .catch((error) => {
+        toast({
+          title: "更新失敗",
+          description: "更新請假資料時出現錯誤。",
+        });
+        console.error("更新失敗:", error);
+      });
+  };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:8000/api/leaves/${detailData.id}`);
+      onDeleted();
+      toast({
+        title: "撤回假單",
+        description: `已向主管發送撤回信件`,
+      });
+    } catch (error) {
+      console.error("刪除請假單失敗：", error);
+      toast({
+        title: "撤回失敗",
+        description: `撤回請假單時發生錯誤`,
+      });
+    }
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -230,10 +312,13 @@ export function EditCard({ detailData }: EditCardProps) {
                           <SelectContent>
                             {fieldKey === "type" ? (
                               <>
-                                <SelectItem value="事假">事假</SelectItem>
-                                <SelectItem value="病假">病假</SelectItem>
-                                <SelectItem value="公假">公假</SelectItem>
-                                <SelectItem value="特休">特休</SelectItem>
+                                {Object.entries(leaveTypeLabel).map(
+                                  ([key, label]) => (
+                                    <SelectItem key={key} value={key}>
+                                      {label}
+                                    </SelectItem>
+                                  ),
+                                )}
                               </>
                             ) : (
                               <>
@@ -277,29 +362,50 @@ export function EditCard({ detailData }: EditCardProps) {
                 name="file"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>附件（可上傳 .jpg/.png/.pdf）</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      附件（可上傳 .jpg/.png/.pdf）
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="cursor-pointer items-center rounded-md bg-white px-2 py-1 hover:bg-zinc-100"
+                      >
+                        <UploadCloudIcon className="h-5 w-5 text-zinc-600" />
+                      </div>
+                      <XIcon
+                        className="h-4 w-4 cursor-pointer text-zinc-500 hover:text-red-500"
+                        onClick={(e) => {
+                          e.stopPropagation(); // 防止觸發 file input
+                          field.onChange(undefined);
+                          if (fileInputRef.current)
+                            fileInputRef.current.value = "";
+                          setPreviewUrl(null);
+                        }}
+                      />
+                    </FormLabel>
                     <FormControl>
                       <div>
-                        <label
-                          htmlFor="file-upload"
-                          className="flex h-10 w-full cursor-pointer items-center rounded-md border border-zinc-200 bg-white px-3"
-                        >
-                          <UploadCloudIcon className="mr-2 h-6 w-6" />
-                          <p className="text-sm">
-                            {fileName || detailData.attachment}
-                          </p>
-                        </label>
+                        {/* 縮圖顯示 */}
+                        {previewUrl && (
+                          <div className="mt-2">
+                            <img
+                              src={previewUrl}
+                              alt="附件預覽"
+                              className="max-h-[100px] rounded-md shadow"
+                            />
+                          </div>
+                        )}
+
+                        {/* 隱藏的 file input */}
                         <input
                           ref={fileInputRef}
                           id="file-upload"
                           type="file"
-                          accept=".png,.jpg,.jpeg,.pdf"
+                          accept=".png,.jpg,.jpeg"
                           className="hidden"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
                               field.onChange(file);
-                              setFileName(file.name);
+                              setPreviewUrl(URL.createObjectURL(file));
                             }
                           }}
                         />
@@ -312,18 +418,14 @@ export function EditCard({ detailData }: EditCardProps) {
 
               <DialogFooter className="sm:justify-start">
                 <div className="flex gap-4">
-                  <Button type="submit">更新</Button>
+                  <DialogClose asChild>
+                    <Button type="submit">更新</Button>
+                  </DialogClose>
                   <DialogClose asChild>
                     <Button
                       type="button"
                       variant="destructive"
-                      onClick={() => {
-                        form.reset();
-                        setFileName("");
-                        toast({
-                          title: "已撤回請假申請",
-                        });
-                      }}
+                      onClick={handleDelete}
                     >
                       撤回
                     </Button>

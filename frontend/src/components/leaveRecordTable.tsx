@@ -3,6 +3,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
+import { useLeaveRecords } from "@/components/hooks/fetchLeaveRecord";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -28,44 +29,76 @@ import {
 import { LeaveStatus } from "@/models/enum/leaveStatus";
 import { TableType } from "@/models/enum/tableType";
 import type { Props } from "@/models/leave";
+import type { LeaveRecord } from "@/models/leave";
 
 import { DetailCard } from "./detailCard";
 import { EditCard } from "./editCard";
 
-const statusColor: Record<LeaveStatus, string> = {
-  [LeaveStatus.Pending]: "font-semibold text-blue",
-  [LeaveStatus.Approved]: "font-semibold text-black",
-  [LeaveStatus.Rejected]: "font-semibold text-pink",
+const statusColor: Record<string, string> = {
+  pending: "font-semibold text-blue",
+  approved: "font-semibold text-black",
+  rejected: "font-semibold text-pink",
 };
 
-const statusLabel: Record<LeaveStatus, string> = {
-  [LeaveStatus.Pending]: "審核中",
-  [LeaveStatus.Approved]: "已核准",
-  [LeaveStatus.Rejected]: "已退回",
+const statusLabel: Record<string, string> = {
+  pending: "審核中",
+  approved: "已核准",
+  rejected: "已退回",
 };
 
-export function LeaveRecordTable({
-  records,
-  onSearch,
-  type,
-  employeeData,
-}: Props) {
+const leaveTypeLabel: Record<string, string> = {
+  annual: "特休",
+  sick: "病假",
+  personal: "事假",
+  official: "公假",
+};
+
+export function LeaveRecordTable({ type, employeeData }: Props) {
   const [name, setName] = useState<string>("");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [leaveType, setLeaveType] = useState<string>("");
   const [status, setStatus] = useState<LeaveStatus | "">("");
+  const [filteredRecords, setFilteredRecords] = useState<LeaveRecord[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // HERE ! 取得請假紀錄 ( 要根據 TableType 打不同的 api )
+  const { records, fetchLeaveRecords } = useLeaveRecords(
+    sessionStorage.getItem("userId"),
+  );
 
   const handleSearch = () => {
-    // 前端根據搜尋結果做篩選
-    if (!onSearch) return;
-    onSearch({
-      startDate: startDate?.toISOString().split("T")[0],
-      endDate: endDate?.toISOString().split("T")[0],
-      type: leaveType || undefined,
-      status: status || undefined,
+    const filtered = records.filter((record) => {
+      const isNameMatch = !name || record.name === name;
+      const isStartDateMatch = !startDate || record.startDate >= startDate;
+      const isEndDateMatch = !endDate || record.endDate <= endDate;
+      const isTypeMatch =
+        !leaveType || leaveTypeLabel[record.type] === leaveType;
+      const isStatusMatch = !status || record.status === status;
+
+      return (
+        isNameMatch &&
+        isStartDateMatch &&
+        isEndDateMatch &&
+        isTypeMatch &&
+        isStatusMatch
+      );
     });
+
+    setFilteredRecords(filtered);
+    setHasSearched(true);
   };
+
+  const handleClear = () => {
+    setName("");
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setLeaveType("");
+    setStatus("");
+    setFilteredRecords([]);
+    setHasSearched(false);
+  };
+
   return (
     <div
       className={`${type == TableType.approval ? "max-h-[500px]" : "max-h-[320px]"} space-y-4 rounded-md bg-white p-6 shadow-element`}
@@ -162,9 +195,9 @@ export function LeaveRecordTable({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={LeaveStatus.Pending}>審核中</SelectItem>
-                <SelectItem value={LeaveStatus.Approved}>已核准</SelectItem>
-                <SelectItem value={LeaveStatus.Rejected}>已退回</SelectItem>
+                <SelectItem value={LeaveStatus.pending}>審核中</SelectItem>
+                <SelectItem value={LeaveStatus.approved}>已核准</SelectItem>
+                <SelectItem value={LeaveStatus.rejected}>已退回</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -174,6 +207,12 @@ export function LeaveRecordTable({
             className="mt-7 h-[30px] w-[50px] bg-blue text-white hover:bg-blue/90"
           >
             查詢
+          </Button>
+          <Button
+            onClick={handleClear}
+            className="mt-7 h-[30px] w-[50px] bg-slate-300 text-black hover:bg-slate-300/90"
+          >
+            清除
           </Button>
         </div>
       )}
@@ -196,35 +235,56 @@ export function LeaveRecordTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {records.map((record) => (
-              <TableRow
-                key={record.id}
-                className={`${type != TableType.personal && "h-[40px]"}`}
-              >
-                {type == TableType.approval && (
-                  <TableCell>{record.name}</TableCell>
-                )}
-                <TableCell>{record.type}</TableCell>
-                <TableCell>{format(record.startDate, "yyyy/MM/dd")}</TableCell>
-                <TableCell>{format(record.endDate, "yyyy/MM/dd")}</TableCell>
-                <TableCell>{record.agent}</TableCell>
-                <TableCell>{record.reason}</TableCell>
-                <TableCell>{record.attachment || "--"}</TableCell>
-                <TableCell className={statusColor[record.status]}>
-                  {statusLabel[record.status]}
+            {hasSearched && filteredRecords.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={type !== TableType.manager ? 9 : 8}
+                  className="text-gray-500 text-center"
+                >
+                  查無符合條件的請假紀錄
                 </TableCell>
-                {type != TableType.manager && (
-                  <TableCell>
-                    {statusLabel[record.status] === "審核中" &&
-                    type == TableType.personal ? (
-                      <EditCard detailData={record} />
-                    ) : (
-                      <DetailCard detailData={record} />
-                    )}
-                  </TableCell>
-                )}
               </TableRow>
-            ))}
+            ) : (
+              (hasSearched ? filteredRecords : records).map((record) => (
+                <TableRow
+                  key={record.id}
+                  className={`${type != TableType.personal && "h-[40px]"}`}
+                >
+                  {type == TableType.approval && (
+                    <TableCell>{record.name}</TableCell>
+                  )}
+                  <TableCell>{leaveTypeLabel[record.type]}</TableCell>
+                  <TableCell>
+                    {format(record.startDate, "yyyy/MM/dd")}
+                  </TableCell>
+                  <TableCell>{format(record.endDate, "yyyy/MM/dd")}</TableCell>
+                  <TableCell>{record.agent}</TableCell>
+                  <TableCell>{record.reason}</TableCell>
+                  <TableCell>{record.attachment || "--"}</TableCell>
+                  <TableCell className={statusColor[record.status]}>
+                    {statusLabel[record.status]}
+                  </TableCell>
+
+                  {type != TableType.manager && (
+                    <TableCell>
+                      {statusLabel[record.status] === "審核中" &&
+                      type == TableType.personal ? (
+                        <EditCard
+                          detailData={record}
+                          onDeleted={fetchLeaveRecords}
+                        />
+                      ) : (
+                        // HERE ! 根據 TableType 傳入不同資料和 refetch function
+                        <DetailCard
+                          detailData={record}
+                          onDeleted={fetchLeaveRecords}
+                        />
+                      )}
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

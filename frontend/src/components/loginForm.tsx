@@ -24,7 +24,7 @@ const LoginForm: React.FC = () => {
       rememberPassword,
     });
     // 透過 api 取得登入資訊
-    login("winnie", "manager");
+    login(employeeId, "winnie", "manager");
     navigate("/apply-form");
   };
 
