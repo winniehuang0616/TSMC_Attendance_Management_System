@@ -2,6 +2,8 @@ import logging
 import uuid
 from datetime import datetime
 from repositories.db_connection import get_db_connection
+from typing import List, Dict
+
 
 logger = logging.getLogger(__name__)
 
@@ -308,3 +310,68 @@ def delete_leave_form(leave_id):
     finally:
         cursor.close()
         conn.close()
+
+def get_leaves_by_employee_ids(employee_ids: List[str]) -> list[dict]:
+    """
+    讀取多個員工 ID 的全部請假紀錄，並回傳符合 LeaveInfo schema 的 list[dict]。
+    """
+    if not employee_ids: # 如果 ID 列表為空，直接返回空列表，避免無效查詢
+        logger.info("傳入的 employee_ids 列表為空，無需查詢假單。")
+        return []
+
+    conn, cursor = get_db_connection()
+    # 確保使用字典游標以方便按欄位名稱取值
+    cursor = conn.cursor(dictionary=True)
+    results: list[dict] = []
+    try:
+        # 使用 %s 產生對應數量的佔位符
+        placeholders = ', '.join(['%s'] * len(employee_ids))
+        sql = f"""
+            SELECT
+                li.leave_id, li.employee_id, li.status,
+                li.leave_type, li.start_time, li.end_time,
+                li.reason, li.attachment_base64,
+                a.name AS agent_name,       -- 獲取代理人姓名
+                r.name AS reviewer_name,    -- 獲取審核人姓名
+                li.comment, li.create_time, li.agent_id, li.reviewer_id
+            FROM leave_info li
+            LEFT JOIN employee_info a ON li.agent_id = a.employee_id       -- JOIN 代理人
+            LEFT JOIN employee_info r ON li.reviewer_id = r.employee_id    -- JOIN 審核人
+            WHERE li.employee_id IN ({placeholders})
+            ORDER BY li.employee_id, li.start_time DESC -- 可選：按員工和開始時間排序
+        """
+        # 將 employee_ids 列表轉換為元組傳遞給 execute
+        cursor.execute(sql, tuple(employee_ids))
+        rows = cursor.fetchall() # list of dicts
+
+        for row in rows:
+            # 轉換為前端期望的格式 (與 get_leaves_by_employee 邏輯保持一致)
+            results.append({
+                "leaveId":              row["leave_id"],
+                "employeeId":           row["employee_id"],
+                "status":               STATUS_MAP.get(row["status"], "pending"), # 使用映射轉換狀態
+                "leaveType":            REVERSE_TYPE_MAP.get(row["leave_type"], ""), # 使用映射轉換類型
+                "startDate":            row["start_time"], # 直接傳遞 datetime 物件
+                "endDate":              row["end_time"],   # 直接傳遞 datetime 物件
+                "reason":               row["reason"],
+                "attachedFileBase64":   row["attachment_base64"],
+                "agentId":              row["agent_id"],
+                "agentName":            row.get("agent_name"), # 使用 .get 以防 agent_id 為 NULL
+                "reviewerId":           row["reviewer_id"],
+                "reviewerName":         row.get("reviewer_name"), # 使用 .get 以防 reviewer_id 為 NULL
+                "comment":              row["comment"],
+                "createDate":           row["create_time"], # 直接傳遞 datetime 物件
+            })
+        logger.info(f"成功查詢員工 {employee_ids} 的 {len(results)} 筆假單記錄。")
+        return results
+
+    except Exception as e:
+        logger.error(f"查詢員工列表 {employee_ids} 的假單時發生錯誤: {e}")
+        # 根據需要決定是拋出異常還是返回空列表
+        # raise e
+        return [] # 發生錯誤時返回空列表可能更安全
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

@@ -49,3 +49,25 @@ def review_leave(leaveId: str, req: ReviewRequest):
     """
     reviewed = LeaveService.review_leave(leaveId, req)
     return reviewed
+
+@router.get("/manager/{manager_id}/department-leaves", response_model=List[LeaveInfo])
+def read_manager_department_leaves(manager_id: str):
+    """
+    獲取指定員工（假設是主管）所在部門的其他員工的請假紀錄列表。
+    此端點 *假設* 提供的 manager_id 是有效的，且代表一位主管。
+    """
+    # 你可以在這裡加入非常基礎的 manager_id 格式檢查 (如果需要)
+    # 例如： if not manager_id.startswith('M'): raise HTTPException(...)
+
+    # 調用 Service 層的方法，傳入從路徑中獲取的 manager_id
+    try:
+        leaves = LeaveService.get_department_colleague_leaves(manager_id=manager_id)
+        # Service 返回的 list[dict] 會由 FastAPI 自動根據 response_model=List[LeaveInfo] 驗證和轉換
+        return leaves
+    except HTTPException as http_exc:
+        # 如果 Service 層拋出 HTTPException (例如 manager_id 不存在), 直接重新拋出
+        raise http_exc
+    except Exception as e:
+        # 處理其他潛在的服務層錯誤
+        print(f"Error processing request for manager {manager_id}: {e}") # Log the error
+        raise HTTPException(status_code=500, detail="Internal server error processing request.")
