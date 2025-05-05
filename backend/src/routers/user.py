@@ -58,3 +58,18 @@ def get_user_attendance_record(employeeId: str):
 def list_department_agents(employee_id: str):
     agents = get_department_agents(employee_id)
     return agents
+
+
+@router.get("/department/employeesInfo/{employeeId}")
+def get_department_employees_details(employeeId:str):
+    """
+    若為主管，取得該部門所有員工資料(id, name, phone, email, 四價別天數)
+    """
+    try: 
+        employees = UserService.get_department_employees_details(employeeId)
+        return employees
+    except HTTPException:
+        raise
+
+
+
