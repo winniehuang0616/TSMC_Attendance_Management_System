@@ -89,7 +89,7 @@ class UserService:
                 "name": emp_info['name'],
                 "phone": emp_info['phone'],
                 "email": emp_info['email'],
-                "remain_leave": leave_info
+                "used_leave": leave_info
             }
             employees_info.append(employee_detail)
 
