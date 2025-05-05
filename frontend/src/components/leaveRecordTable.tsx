@@ -62,7 +62,7 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
   const [filteredRecords, setFilteredRecords] = useState<LeaveRecord[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
 
-  // 取得請假紀錄
+  // HERE ! 取得請假紀錄 ( 要根據 TableType 打不同的 api )
   const { records, fetchLeaveRecords } = useLeaveRecords(
     sessionStorage.getItem("userId"),
   );
@@ -274,6 +274,7 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                           onDeleted={fetchLeaveRecords}
                         />
                       ) : (
+                        // HERE ! 根據 TableType 傳入不同資料和 refetch function
                         <DetailCard
                           detailData={record}
                           onDeleted={fetchLeaveRecords}

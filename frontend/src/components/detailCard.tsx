@@ -62,6 +62,7 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
   };
 
   const handleSubmit = () => {
+    // 錯誤呈現紅色字
     let hasError = false;
 
     if (checked === null) {
@@ -79,20 +80,33 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
     }
 
     if (hasError) return;
+    //
 
     const payload = {
-      id: detailData.id,
-      status: checked ? "已核准" : "已退回",
-      description: description.trim(),
+      reviewerId: sessionStorage.getItem("userId"),
+      status: checked ? "approved" : "rejected",
+      comment: description.trim(),
     };
 
     // 透過 API 更新假單
-    console.log("送出請求", payload);
-
-    toast({
-      title: "已送出簽核結果",
-    });
-    setOpen(false);
+    axios
+      .put(`http://localhost:8000/api/leaves/${detailData.id}/review`, payload)
+      .then(() => {
+        setOpen(false);
+        onDeleted();
+        toast({
+          title: "已簽核假單",
+          description: "系統將寄信通知申請者",
+        });
+      })
+      .catch((error) => {
+        toast({
+          title: "送出簽核結果失敗",
+          description: "請稍後再試。",
+          variant: "destructive",
+        });
+        console.error("簽核失敗：", error);
+      });
   };
 
   return (
