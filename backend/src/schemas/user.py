@@ -10,7 +10,12 @@ class RoleEnum(str, Enum):
 
 class UserInfoResponse(BaseModel):
     userId: str
+    name : str
     email: Optional[str]
     phone: Optional[str]
     role: RoleEnum
-    remain_leave: Dict[str, int]
+    used_leave: Dict[str, int]
+
+class EmployeeInfoResponse(BaseModel):
+    id: str
+    name: str
