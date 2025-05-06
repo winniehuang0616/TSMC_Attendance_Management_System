@@ -28,7 +28,7 @@ jobs:
     
     - name: Test DB connection
       run: |
-        python -c "from backend.repositories.src.db import get_db_connection; get_db_connection()"
+        python -c "from backend.src.repositories.db import get_db_connection; get_db_connection()"
  
     - name: Run tests
       run: PYTHONPATH=backend/src pytest backend/tests/
