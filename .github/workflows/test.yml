@@ -25,10 +25,13 @@ jobs:
         echo "DB_USER=backend_user" >> $GITHUB_ENV
         echo "DB_PASSWORD=StrongPassword123!" >> $GITHUB_ENV
         echo "DB_NAME=leave_management" >> $GITHUB_ENV
-    
+
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=$(pwd)/backend/src" >> $GITHUB_ENV
+
     - name: Test DB connection
       run: |
-        python -c "from backend.src.repositories.db_connection import get_db_connection; get_db_connection()"
+        PYTHONPATH=backend/src python -c "from repositories.db_connection import get_db_connection; get_db_connection()"
  
     - name: Run tests
       run: PYTHONPATH=backend/src pytest backend/tests/
