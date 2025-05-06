@@ -23,4 +23,4 @@ jobs:
         pwd
         ls -R
     - name: Run tests
-      run: PYTHONPATH=backend pytest backend/tests/
+      run: PYTHONPATH=backend/src pytest backend/tests/
