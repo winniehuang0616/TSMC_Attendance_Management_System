@@ -5,9 +5,10 @@ export type UserRole = "employee" | "manager";
 interface AuthContextType {
   isLoggedIn: boolean;
   setIsLoggedIn: (value: boolean) => void;
+  userId: string | null;
   userName: string | null;
   role: UserRole | null;
-  login: (name: string, role: UserRole) => void;
+  login: (id: string, name: string, role: UserRole) => void;
   logout: () => void;
 }
 
