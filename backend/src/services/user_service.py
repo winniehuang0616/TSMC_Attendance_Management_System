@@ -3,6 +3,7 @@
 from fastapi import HTTPException
 from repositories.employee_repository import get_employee_by_id, get_employee_id_under_manager
 from repositories.leave_repository    import get_used_leaves, get_leaves_by_employee, get_attendance_by_employee
+from schemas.user import UserInfoResponse
 
 class UserService:
     @staticmethod
@@ -84,13 +85,13 @@ class UserService:
         for id in employee_ids:
             emp_info = get_employee_by_id(id)
             leave_info = UserService.get_used_hours(id)
-            employee_detail = {
-                "employee_id": id,
-                "name": emp_info['name'],
-                "phone": emp_info['phone'],
-                "email": emp_info['email'],
-                "used_leave": leave_info
-            }
+            employee_detail = UserInfoResponse(
+                userId=id,
+                email=emp_info["email"],
+                phone=emp_info["phone"],
+                role=emp_info["role"],  # 注意這個欄位需要符合 Enum
+                used_leave=leave_info
+            )
             employees_info.append(employee_detail)
 
         return employees_info

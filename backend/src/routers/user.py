@@ -61,7 +61,7 @@ def list_department_agents(employee_id: str):
 
 
 @router.get("/department/employeesInfo/{employeeId}")
-def get_department_employees_details(employeeId:str):
+def get_department_employees_details(employeeId:str, response_model=list[UserInfoResponse]):
     """
     若為主管，取得該部門所有員工資料(id, name, phone, email, 四價別天數)
     """
