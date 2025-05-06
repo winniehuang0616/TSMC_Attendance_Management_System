@@ -71,3 +71,12 @@ def read_manager_department_leaves(manager_id: str):
         # 處理其他潛在的服務層錯誤
         print(f"Error processing request for manager {manager_id}: {e}") # Log the error
         raise HTTPException(status_code=500, detail="Internal server error processing request.")
+    
+@router.get("/{employeeId}/leaveCount")
+def get_leave_count(employeeId: str):
+    """
+    獲取指定員工的請假次數
+    回傳兩個dict: allocatedLeaves 和 usedLeave
+    """
+    leave_count = LeaveService.get_used_and_allocated_leaves(employeeId)
+    return leave_count
