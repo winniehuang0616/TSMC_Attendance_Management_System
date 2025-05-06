@@ -18,9 +18,17 @@ jobs:
     - name: Install dependencies
       run: pip install -r backend/requirements.txt
     
-    - name: Debug - List files
+    - name: Set environment variables
       run: |
-        pwd
-        ls -R
+        echo "DB_PORT=3306" >> $GITHUB_ENV
+        echo "DB_HOST=34.81.245.163" >> $GITHUB_ENV
+        echo "DB_USER=backend_user" >> $GITHUB_ENV
+        echo "DB_PASSWORD=StrongPassword123!" >> $GITHUB_ENV
+        echo "DB_NAME=leave_management" >> $GITHUB_ENV
+
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=$(pwd)/backend/src" >> $GITHUB_ENV
+
+     
     - name: Run tests
-      run: pytest backend/tests/
+      run: PYTHONPATH=backend/src pytest -s backend/tests/
