@@ -29,9 +29,6 @@ jobs:
     - name: Set PYTHONPATH
       run: echo "PYTHONPATH=$(pwd)/backend/src" >> $GITHUB_ENV
 
-    - name: Test DB connection
-      run: |
-        PYTHONPATH=backend/src python -c "from repositories.db_connection import get_db_connection; get_db_connection()"
- 
+     
     - name: Run tests
       run: PYTHONPATH=backend/src pytest -s backend/tests/

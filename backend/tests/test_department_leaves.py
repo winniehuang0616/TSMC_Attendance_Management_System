@@ -11,7 +11,7 @@ for route in app.routes:
 
 
 def test_valid_manager():
-    response = client.get("/leaves/manager/EMP001/department-leaves")
+    response = client.get("/api/leaves/manager/EMP001/department-leaves")
     assert response.status_code == 200
 
 # def test_empty_department():
@@ -20,10 +20,10 @@ def test_valid_manager():
 #     assert response.json() == []
 
 def test_invalid_manager_id():
-    response = client.get("/leaves/manager/INVALID_ID/department-leaves")
+    response = client.get("/api/leaves/manager/INVALID_ID/department-leaves")
     assert response.status_code < 500
 
 def test_non_manager_id():
-    response = client.get("/leaves/manager/EMP002/department-leaves")
+    response = client.get("/api/leaves/manager/EMP002/department-leaves")
     assert response.status_code < 500
 
