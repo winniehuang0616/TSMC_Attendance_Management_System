@@ -4,6 +4,12 @@ from main import app
 
 client = TestClient(app)
 
+print("Testing app routes:", app.routes)
+
+for route in app.routes:
+    print(route.path)
+
+
 def test_valid_manager():
     response = client.get("/leaves/manager/EMP001/department-leaves")
     assert response.status_code == 200
