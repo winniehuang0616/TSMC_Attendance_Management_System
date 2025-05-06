@@ -32,12 +32,21 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { Agent } from "@/models/detail";
+import { useAuth } from "@/context/authContext";
+
+// 在文件頂部新增假別對應表
+const LEAVE_TYPE_MAP: Record<string, string> = {
+  '特休': 'annual',
+  '病假': 'sick',
+  '事假': 'personal',
+  '公假': 'official'
+};
 
 // 透過 api 取得代理人
 const agentData: Agent[] = [
-  { id: 1, name: "111-王小明" },
-  { id: 2, name: "112-陳美惠" },
-  { id: 3, name: "113-黃玲玲" },
+  { id: 1, name: "EMP001-王小明" },
+  { id: 2, name: "EMP002-陳美惠" },
+  { id: 3, name: "EMP003-黃玲玲" },
 ];
 
 const FormSchema = z.object({
@@ -53,6 +62,7 @@ const FormSchema = z.object({
 
 export function ApplyForm() {
   const { toast } = useToast();
+  const { userName } = useAuth(); // 從 AuthContext 獲取 employeeId
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -85,13 +95,69 @@ export function ApplyForm() {
     }
   }
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    // 透過 api 新增請假表單
-    toast({
-      title: "請假表單已送出",
-    });
-    console.log(data);
-    resetForm();
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      // 將檔案轉換為 base64
+      let attachedFileBase64 = ''; // 更改變數名稱從 attachedFileUrl 為 attachedFileBase64
+      let attachedFileName = '';
+      let attachedFileType = '';
+      
+      if (data.file) {
+        attachedFileName = data.file.name;
+        attachedFileType = data.file.type;
+        const reader = new FileReader();
+        attachedFileBase64 = await new Promise((resolve) => {
+          reader.onloadend = () => {
+            const base64String = reader.result as string;
+            resolve(base64String.split(',')[1]); // 只取 base64 內容部分
+          };
+          reader.readAsDataURL(data.file);
+        });
+      }
+  
+      // 日期格式轉換函數 - 修改為 ISO 格式
+      const formatDateTime = (date: Date, hour: string) => {
+        const newDate = new Date(date);
+        newDate.setHours(parseInt(hour, 10), 0, 0);
+        return newDate.toISOString();
+      };
+  
+      // 準備請求體
+      const requestBody = {
+        leaveType: LEAVE_TYPE_MAP[data.type] || data.type, // 使用對應表轉換假別
+        startDate: formatDateTime(data.start, data.startHour),
+        endDate: formatDateTime(data.end, data.endHour),
+        reason: data.reason,
+        attachedFileBase64: attachedFileBase64, // 更改變數名稱
+        agentId: data.agent.split('-')[0], // 只取員工編號部分
+        createDate: new Date().toISOString() // 使用 ISO 格式
+      };
+  
+      // 發送請求
+      const response = await fetch(`http://127.0.0.1:8000/api/leaves/${userName}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+  
+      if (response.ok) {
+        toast({
+          title: "請假表單已送出",
+          description: "主管將會收到您的請假申請",
+        });
+        resetForm();
+      } else {
+        throw new Error('請求失敗');
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "送出失敗",
+        description: "請稍後再試",
+      });
+    }
   }
 
   return (
