@@ -1,9 +1,9 @@
 # routers/user.py
 
 from fastapi import APIRouter, HTTPException
-from schemas.user import UserInfoResponse
+from schemas.user import UserInfoResponse, EmployeeInfoResponse
 from services.user_service import UserService
-from repositories.leave_repository import get_employee_balance
+from services.agent_service import get_department_agents
 
 router = APIRouter(prefix="/api/user", tags=["User"])
 
@@ -15,17 +15,18 @@ def get_userinfo(employeeId: str):
     try:
         user = UserService.get_userinfo(employeeId)
         print(user)
-        balance = get_employee_balance(employeeId)
+        used_leave = UserService.get_used_hours(employeeId)
     except HTTPException:
         # Service 已拋出 404 或其他 HTTPException
         raise
     # 將 dict 轉成 Pydantic model
     return UserInfoResponse(
         userId     = user["employee_id"],
+        name        = user.get("name"),
         email        = user.get("email"),
         phone        = user.get("phone"),
         role         = user["role"],
-        remain_leave = balance["remain_leave"]
+        used_leave = used_leave
     )
 
 @router.get("/department/list/{employeeId}")
@@ -51,3 +52,10 @@ def get_user_attendance_record(employeeId: str):
     except HTTPException:
         # Service 已拋出 404 或其他 HTTPException
         raise
+
+
+# 查詢代理人
+@router.get("agent/{employee_id}", response_model=list[EmployeeInfoResponse])
+def list_department_agents(employee_id: str):
+    agents = get_department_agents(employee_id)
+    return agents
