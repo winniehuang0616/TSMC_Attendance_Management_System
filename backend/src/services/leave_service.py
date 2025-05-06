@@ -6,7 +6,9 @@ from repositories.leave_repository import (
     create_leave_form,
     update_leave_form,
     delete_leave_form,
-    get_leaves_by_employee_ids
+    get_leaves_by_employee_ids,
+    get_allocated_leaves,
+    get_used_leaves
 )
 from schemas.leave import LeaveCreateRequest, LeaveUpdateRequest, ReviewRequest
 from services.notification_service import NotificationService
@@ -117,3 +119,19 @@ class LeaveService:
 
         return leaves
   
+    @staticmethod
+    def get_used_and_allocated_leaves (employeeId: str) -> Dict[str, Optional[int]]:
+        """
+        獲取指定員工的已使用和分配的假期數量。
+        Args:
+            employeeId: 員工的 ID。
+        Returns:
+            包含已使用和分配假期數量的字典。
+        """
+        used_leaves = get_used_leaves(employeeId)
+        allocated_leaves = get_allocated_leaves(employeeId)
+
+        return {
+            "usedLeaves": used_leaves,
+            "allocatedLeaves": allocated_leaves
+        }
