@@ -68,6 +68,22 @@ def get_employee_id_under_manager(employee_id):
         cursor.close()
         conn.close()
 
+
+def get_all_magnager_ids(employee_id):
+    """
+    return list of manager IDs
+    """
+    conn, cursor = get_db_connection()
+    try:
+        sql = "SELECT employee_id FROM employee_info WHERE role = 'manager'"
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        # 排除自己
+        return [r['employee_id'] for r in rows if r['employee_id'] != employee_id]
+    finally:
+        cursor.close()
+        conn.close()
+
 # 查詢代理人可選名單
 def fetch_agents_by_employee_id(employee_id):
     """
