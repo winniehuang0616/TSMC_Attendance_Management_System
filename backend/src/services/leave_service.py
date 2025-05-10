@@ -12,7 +12,7 @@ from repositories.leave_repository import (
 )
 from schemas.leave import LeaveCreateRequest, LeaveUpdateRequest, ReviewRequest
 from services.notification_service import NotificationService
-from repositories.employee_repository import get_employee_id_under_manager, get_employee_by_id
+from repositories.employee_repository import get_employee_id_under_manager, get_employee_by_id, get_all_magnager_ids
 from typing import List, Dict, Optional
 
 
@@ -95,29 +95,21 @@ class LeaveService:
         Returns:
             一個包含假單資訊字典的列表。
         """
-        # 1. 獲取主管所在的部門 (雖然 get_employee_id_under_manager 內部會做，但這裡先獲取以供日誌或檢查)
-        manager_info = get_employee_by_id(manager_id)
-        if not manager_info or 'department_id' not in manager_info:
-             # 或者記錄日誌並返回空列表
-            raise HTTPException(status_code=404, detail=f"Manager with ID {manager_id} not found or has no department.")
-
-        manager_department_id = manager_info['department_id']
-        print(f"主管 {manager_id} 的部門是 {manager_department_id}") # Debug log
-
-        # 2. 使用現有函數獲取同部門其他員工的 ID 列表
-        # 注意：此函數名稱可能具誤導性，但其功能是獲取同部門非自己的員工ID
-        colleague_ids = get_employee_id_under_manager(manager_id)
-
-        if not colleague_ids:
-            print(f"主管 {manager_id} (部門 {manager_department_id}) 沒有其他同部門員工。") # Debug log
+        ## 取得同部門員工資料
+        employee_ids = get_employee_id_under_manager(manager_id)
+        if not employee_ids:
             return [] # 如果沒有其他同事，返回空列表
+        leaves_employee = get_leaves_by_employee_ids(employee_ids)
+        
+        ##取得其他主管資料
+        manager_ids = get_all_magnager_ids(manager_id)
+        if not employee_ids:
+            return [] 
+        leaves_manager = get_leaves_by_employee_ids(manager_ids)
 
-        print(f"找到主管 {manager_id} 的同部門同事 ID: {colleague_ids}") # Debug log
-
-        # 3. 使用新增的 repository 函數批量獲取這些同事的假單
-        leaves = get_leaves_by_employee_ids(colleague_ids)
-
-        return leaves
+        ##合併請假資料
+        all_leaves = leaves_employee + leaves_manager
+        return all_leaves
   
     @staticmethod
     def get_used_and_allocated_leaves (employeeId: str) -> Dict[str, Optional[int]]:
