@@ -54,7 +54,7 @@ def get_user_attendance_record(employeeId: str):
 
 
 # 查詢代理人
-@router.get("agent/{employee_id}", response_model=list[EmployeeInfoResponse])
+@router.get("/agent/{employee_id}", response_model=list[EmployeeInfoResponse])
 def list_department_agents(employee_id: str):
     agents = get_department_agents(employee_id)
     return agents
