@@ -4,20 +4,30 @@ from routers import auth, user, leave, notify
 
 app = FastAPI(
     title="Leave and Attendance System",
+    description="Backend API for Leave and Attendance Management System",
+    version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
 )
 
+# Configure CORS
+origins = [
+    "http://localhost:5173",  # Vite default port
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",  # Alternative development port
+]
+
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5173"],  # 對應前端的 PORT
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 把所有 router 掛載進來
+# Add routers
 app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(leave.router)
