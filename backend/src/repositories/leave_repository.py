@@ -121,6 +121,51 @@ def get_leaves_by_employee(employee_id: str) -> list[dict]:
         cursor.close()
         conn.close()
 
+def get_leave_by_leaveid(leave_id: str) -> dict:
+    """
+    讀取該 leave_id 的請假紀錄，並直接回傳符合 LeaveInfo schema 的 dict。
+    """
+    conn, cursor = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        sql = """
+            SELECT
+                li.leave_id, li.employee_id, li.status,
+                li.leave_type, li.start_time, li.end_time,
+                li.reason, li.attachment_base64,
+                a.name AS agent_name, r.name AS reviewer_name,
+                li.comment, li.create_time, li.agent_id, li.reviewer_id
+            FROM leave_info li
+            LEFT JOIN employee_info a ON li.agent_id = a.employee_id
+            LEFT JOIN employee_info r ON li.reviewer_id = r.employee_id
+            WHERE li.leave_id = %s
+        """
+        cursor.execute(sql, (leave_id,))
+        row = cursor.fetchone()  # dict
+
+        if not row:
+            return None
+
+        return {
+            "leaveId":              row["leave_id"],
+            "employeeId":           row["employee_id"],
+            "status":               STATUS_MAP.get(row["status"], "pending"),
+            "leaveType":            REVERSE_TYPE_MAP.get(row["leave_type"], ""),
+            # 直接傳 datetime，Pydantic 會自動轉 ISO 格式字串
+            "startDate":            row["start_time"],
+            "endDate":              row["end_time"],
+            "reason":               row["reason"],
+            "attachedFileBase64":   row["attachment_base64"],
+            "agentId":              row["agent_id"],
+            "reviewerId":           row["reviewer_id"],
+            "comment":              row["comment"],
+            "createDate":           row["create_time"],
+        }
+
+    finally:
+        cursor.close()
+        conn.close()
+
 def get_attendance_by_employee(employee_id: str) -> list[dict]:
     conn, cursor = get_db_connection()
     cursor = conn.cursor(dictionary=True)
