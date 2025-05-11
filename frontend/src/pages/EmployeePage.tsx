@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { LeaveBalanceCard } from "@/components/leaveBalanceCard";
 import { LeaveRecordTable } from "@/components/leaveRecordTable";
 import {
@@ -10,8 +11,8 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/context/authContext";
 import type { LeaveCard } from "@/models/card";
-import { TableType } from "@/models/enum/tableType";
 import type { EmployeeApiData } from "@/models/employeeApi";
+import { TableType } from "@/models/enum/tableType";
 
 function EmployeePage() {
   const { userId } = useAuth();
@@ -31,13 +32,13 @@ function EmployeePage() {
 
   useEffect(() => {
     if (!name) return;
-  
+
     fetch(`http://localhost:8000/api/leaves/${name}/leaveCount`)
       .then((res) => res.json())
       .then((data) => {
         const used = data.usedLeaves.used_hours;
         const total = data.allocatedLeaves.allocated_hours;
-  
+
         const cards: LeaveCard[] = [
           {
             type: "特休",
@@ -68,13 +69,15 @@ function EmployeePage() {
       })
       .catch((err) => console.error("Leave count error:", err));
   }, [name]);
-  
 
   const selectedEmployee = employeeData.find((e) => e.userId === name);
 
   return (
     <div>
-      <h1 className="mb-1 text-[1.35rem] font-bold text-blue"> 剩餘假期天數查詢 </h1>
+      <h1 className="mb-1 text-[1.35rem] font-bold text-blue">
+        {" "}
+        剩餘假期天數查詢{" "}
+      </h1>
 
       <div className="flex gap-4 py-2">
         <div className="flex items-center gap-2 pl-2">
@@ -109,13 +112,16 @@ function EmployeePage() {
 
       {selectedEmployee && (
         <div className="flex gap-4">
-        {leaveCards.map((leave, idx) => (
-          <LeaveBalanceCard key={idx} {...leave} />
-        ))}
+          {leaveCards.map((leave, idx) => (
+            <LeaveBalanceCard key={idx} {...leave} />
+          ))}
         </div>
       )}
 
-      <h1 className="mb-1 mt-14 text-[1.35rem] font-bold text-blue"> 請假記錄查詢 </h1>
+      <h1 className="mb-1 mt-14 text-[1.35rem] font-bold text-blue">
+        {" "}
+        請假記錄查詢{" "}
+      </h1>
       <LeaveRecordTable
         type={TableType.manager}
         employeeData={employeeData.map((e) => ({
