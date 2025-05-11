@@ -19,7 +19,7 @@ export function LeaveBalanceCard({
           {type}&nbsp;<span className="font-medium text-gray">| total</span>
         </CardTitle>
 
-        <div className="mb-1 mt-1 text-2xl font-bold text-pink">
+        <div className="mb-1 mt-1 text-2xl font-bold text-blue">
           {used} <span className="text-black">/ {total}</span>
         </div>
         <p className="text-xs text-darkBlue">{remainingText}</p>
