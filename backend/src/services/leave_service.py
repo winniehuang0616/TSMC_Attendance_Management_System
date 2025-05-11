@@ -8,13 +8,16 @@ from repositories.leave_repository import (
     delete_leave_form,
     get_leaves_by_employee_ids,
     get_allocated_leaves,
-    get_used_leaves
+    get_used_leaves,
+    get_leave_by_leaveid
 )
 from schemas.leave import LeaveCreateRequest, LeaveUpdateRequest, ReviewRequest
 from services.notification_service import NotificationService
 from repositories.employee_repository import get_employee_id_under_manager, get_employee_by_id, get_all_magnager_ids
 from typing import List, Dict, Optional
 
+TYPE_MAP = {'annual': 2, 'sick': 1, 'personal': 0, 'official': 3}
+REVERSE_TYPE_MAP = {v: k for k, v in TYPE_MAP.items()}
 
 class LeaveService:
     @staticmethod
@@ -33,9 +36,21 @@ class LeaveService:
             "attachmentBase64":  req.attachedFileBase64,
             "agentId":           req.agentId
         }
-        # leave_id = create_leave_form(data)   # 回傳 leaveId
-        # leave = get_leaves_by_employee(leave_id)
-        return create_leave_form(data) 
+
+        used_leaves = get_used_leaves(employeeId)
+        allocated_leaves = get_allocated_leaves(employeeId)
+        quota = float(allocated_leaves['allocated_hours'][data["leaveType"]] - used_leaves['used_hours'][data['leaveType']])
+
+        start_time = req.startDate.timestamp()
+        end_time = req.endDate.timestamp()
+        duration = (end_time - start_time) / 3600 # convert seconds to hours
+
+        if quota <= 0:
+            raise HTTPException(status_code=400, detail="Leave quota exceeded")
+        elif quota < duration:
+            raise HTTPException(status_code=400, detail="Leave duration exceeds quota")
+        
+        return create_leave_form(data)  
     
     @staticmethod
     def update_leave(leaveId: str, req: LeaveUpdateRequest) -> None:
@@ -47,6 +62,22 @@ class LeaveService:
             "attachmentBase64": req.attachmentBase64, # 統一改為 attachmentBase64
             "agentId":          req.agentId
         }
+
+        employeeId = get_leave_by_leaveid(leaveId)["employeeId"]
+
+        used_leaves = get_used_leaves(employeeId)
+        allocated_leaves = get_allocated_leaves(employeeId)
+        quota = float(allocated_leaves['allocated_hours'][data["leaveType"]] - used_leaves['used_hours'][data['leaveType']])
+
+        start_time = req.startDate.timestamp()
+        end_time = req.endDate.timestamp()
+        duration = (end_time - start_time) / 3600 # convert seconds to hours
+
+        if quota <= 0:
+            raise HTTPException(status_code=400, detail="Leave quota exceeded")
+        elif quota < duration:
+            raise HTTPException(status_code=400, detail="Leave duration exceeds quota")
+
         success = update_leave_form(leaveId, data)
         if not success:
             raise HTTPException(status_code=400, detail="Cannot update leave")
