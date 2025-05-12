@@ -84,7 +84,7 @@ def get_leaves_by_employee(employee_id: str) -> list[dict]:
     try:
         sql = """
             SELECT
-                li.leave_id, li.employee_id, li.status,
+                li.leave_id, li.employee_id, e.name as employee_name, li.status,
                 li.leave_type, li.start_time, li.end_time,
                 li.reason, li.attachment_base64,
                 a.name AS agent_name, r.name AS reviewer_name,
@@ -92,6 +92,7 @@ def get_leaves_by_employee(employee_id: str) -> list[dict]:
             FROM leave_info li
             LEFT JOIN employee_info a ON li.agent_id = a.employee_id
             LEFT JOIN employee_info r ON li.reviewer_id = r.employee_id
+            LEFT JOIN employee_info e ON li.employee_id = e.employee_id
             WHERE li.employee_id = %s
         """
         cursor.execute(sql, (employee_id,))
@@ -103,6 +104,7 @@ def get_leaves_by_employee(employee_id: str) -> list[dict]:
             results.append({
                 "leaveId":              row["leave_id"],
                 "employeeId":           row["employee_id"],
+                "employeeName":         row["employee_name"],
                 "status":               STATUS_MAP.get(row["status"], "pending"),
                 "leaveType":            REVERSE_TYPE_MAP.get(row["leave_type"], ""),
                 # 直接傳 datetime，Pydantic 會自動轉 ISO 格式字串
@@ -111,7 +113,9 @@ def get_leaves_by_employee(employee_id: str) -> list[dict]:
                 "reason":               row["reason"],
                 "attachedFileBase64":   row["attachment_base64"],
                 "agentId":              row["agent_id"],
+                "agentName":            row["agent_name"],
                 "reviewerId":           row["reviewer_id"],
+                "reviewerName":         row["reviewer_name"],
                 "comment":              row["comment"],
                 "createDate":           row["create_time"],
             })
@@ -130,7 +134,7 @@ def get_leave_by_leaveid(leave_id: str) -> dict:
     try:
         sql = """
             SELECT
-                li.leave_id, li.employee_id, li.status,
+                li.leave_id, li.employee_id, e.name as employee_name, li.status,
                 li.leave_type, li.start_time, li.end_time,
                 li.reason, li.attachment_base64,
                 a.name AS agent_name, r.name AS reviewer_name,
@@ -138,6 +142,7 @@ def get_leave_by_leaveid(leave_id: str) -> dict:
             FROM leave_info li
             LEFT JOIN employee_info a ON li.agent_id = a.employee_id
             LEFT JOIN employee_info r ON li.reviewer_id = r.employee_id
+            LEFT JOIN employee_info e ON li.employee_id = er.employee_id
             WHERE li.leave_id = %s
         """
         cursor.execute(sql, (leave_id,))
@@ -149,6 +154,7 @@ def get_leave_by_leaveid(leave_id: str) -> dict:
         return {
             "leaveId":              row["leave_id"],
             "employeeId":           row["employee_id"],
+            "employeeName":         row["employee_name"],
             "status":               STATUS_MAP.get(row["status"], "pending"),
             "leaveType":            REVERSE_TYPE_MAP.get(row["leave_type"], ""),
             # 直接傳 datetime，Pydantic 會自動轉 ISO 格式字串
@@ -157,7 +163,9 @@ def get_leave_by_leaveid(leave_id: str) -> dict:
             "reason":               row["reason"],
             "attachedFileBase64":   row["attachment_base64"],
             "agentId":              row["agent_id"],
+            "agentName":            row["agent_name"],
             "reviewerId":           row["reviewer_id"],
+            "reviewerName":         row["reviewer_name"],
             "comment":              row["comment"],
             "createDate":           row["create_time"],
         }
@@ -374,7 +382,7 @@ def get_leaves_by_employee_ids(employee_ids: List[str]) -> list[dict]:
         placeholders = ', '.join(['%s'] * len(employee_ids))
         sql = f"""
             SELECT
-                li.leave_id, li.employee_id, li.status,
+                li.leave_id, li.employee_id, e.name as employee_name, li.status,
                 li.leave_type, li.start_time, li.end_time,
                 li.reason, li.attachment_base64,
                 a.name AS agent_name,       -- 獲取代理人姓名
@@ -383,6 +391,7 @@ def get_leaves_by_employee_ids(employee_ids: List[str]) -> list[dict]:
             FROM leave_info li
             LEFT JOIN employee_info a ON li.agent_id = a.employee_id       -- JOIN 代理人
             LEFT JOIN employee_info r ON li.reviewer_id = r.employee_id    -- JOIN 審核人
+            LEFT JOIN employee_info e ON li.employee_id = e.employee_id    -- JOIN 員工
             WHERE li.employee_id IN ({placeholders})
             ORDER BY li.employee_id, li.start_time DESC -- 可選：按員工和開始時間排序
         """
@@ -395,6 +404,7 @@ def get_leaves_by_employee_ids(employee_ids: List[str]) -> list[dict]:
             results.append({
                 "leaveId":              row["leave_id"],
                 "employeeId":           row["employee_id"],
+                "employeeName":         row["employee_name"],
                 "status":               STATUS_MAP.get(row["status"], "pending"), # 使用映射轉換狀態
                 "leaveType":            REVERSE_TYPE_MAP.get(row["leave_type"], ""), # 使用映射轉換類型
                 "startDate":            row["start_time"], # 直接傳遞 datetime 物件
