@@ -4,23 +4,21 @@ import axios from "axios";
 
 import type { RawLeaveRecord } from "./fetchLeaveRecord";
 
-export function useApprovalRecords(userId: string | null) {
+export function useDepartmentRecords(userId: string | null) {
   const [records, setRecords] = useState([]);
 
-  const fetchApprovalRecords = async () => {
+  const fetchDepartmentRecords = async () => {
     if (!userId) return;
     try {
       const response = await axios.get(
         `http://localhost:8000/api/leaves/manager/${userId}/department-leaves`,
       );
-      const pendingRecords = response.data.filter(
-        (r: { status: string }) => r.status === "pending",
-      );
+
       // 格式轉換
-      const formatted = pendingRecords.map((r: RawLeaveRecord) => ({
+      const formatted = response.data.map((r: RawLeaveRecord) => ({
         id: r.leaveId,
         employeeId: r.employeeId,
-        name: r.employeeName, // TODO: 需要從其他地方獲取員工姓名
+        name: r.employeeName,
         type: r.leaveType,
         startDate: new Date(r.startDate),
         endDate: new Date(r.endDate),
@@ -36,8 +34,8 @@ export function useApprovalRecords(userId: string | null) {
   };
 
   useEffect(() => {
-    fetchApprovalRecords();
+    fetchDepartmentRecords();
   }, [userId]);
 
-  return { records, fetchApprovalRecords };
+  return { records, fetchDepartmentRecords };
 }
