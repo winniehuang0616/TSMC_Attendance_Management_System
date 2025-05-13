@@ -22,8 +22,8 @@ function EmployeePage() {
 
   const formatRemainingTime = (remainingHours: number) => {
     if (remainingHours < 0) remainingHours = 0;
-    const days = Math.floor(remainingHours / 8);
-    const hours = remainingHours % 8;
+    const days = Math.floor(remainingHours / 24);
+    const hours = remainingHours % 24;
     return `剩餘 ${days} 天 ${hours} 小時`;
   };
 
