@@ -81,13 +81,13 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
   const currentRecords = isApproval
     ? approvalRecords
     : isManager
-    ? departmentRecords
-    : records;
+      ? departmentRecords
+      : records;
   const refetch = isApproval
     ? fetchApprovalRecords
     : isManager
-    ? fetchDepartmentRecords
-    : refetchNormalRecords;
+      ? fetchDepartmentRecords
+      : refetchNormalRecords;
 
   const handleSearch = () => {
     const filtered = currentRecords.filter((record) => {
