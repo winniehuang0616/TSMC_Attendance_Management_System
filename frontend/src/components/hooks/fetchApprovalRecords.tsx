@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import axios from "axios";
+
 import type { RawLeaveRecord } from "./fetchLeaveRecord";
 
 export function useApprovalRecords(userId: string | null) {
