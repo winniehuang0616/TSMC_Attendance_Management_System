@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import axios from "axios";
+import type { RawLeaveRecord } from "./fetchLeaveRecord";
 
 export function useApprovalRecords(userId: string | null) {
   const [records, setRecords] = useState([]);
@@ -15,7 +16,7 @@ export function useApprovalRecords(userId: string | null) {
         (r: { status: string }) => r.status === "pending",
       );
       // 格式轉換
-      const formatted = pendingRecords.map((r: any) => ({
+      const formatted = pendingRecords.map((r: RawLeaveRecord) => ({
         id: r.leaveId,
         name: r.employeeName, // TODO: 需要從其他地方獲取員工姓名
         type: r.leaveType,
