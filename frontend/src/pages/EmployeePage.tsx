@@ -20,6 +20,13 @@ function EmployeePage() {
   const [name, setName] = useState<string>("");
   const [leaveCards, setLeaveCards] = useState<LeaveCard[]>([]);
 
+  const formatRemainingTime = (remainingHours: number) => {
+    if (remainingHours < 0) remainingHours = 0;
+    const days = Math.floor(remainingHours / 8);
+    const hours = remainingHours % 8;
+    return `剩餘 ${days} 天 ${hours} 小時`;
+  };
+
   // 取得 API 資料
   useEffect(() => {
     fetch(`http://localhost:8000/api/user/department/employeesInfo/${userId}`)
@@ -44,25 +51,25 @@ function EmployeePage() {
             type: "特休",
             used: used.annual,
             total: total.annual,
-            remainingText: `剩餘 ${(total.annual - used.annual) / 8} 天`,
+            remainingText: formatRemainingTime(total.annual - used.annual),
           },
           {
             type: "病假",
             used: used.sick,
             total: total.sick,
-            remainingText: `剩餘 ${(total.sick - used.sick) / 8} 天`,
+            remainingText: formatRemainingTime(total.sick - used.sick),
           },
           {
             type: "事假",
             used: used.personal,
             total: total.personal,
-            remainingText: `剩餘 ${(total.personal - used.personal) / 8} 天`,
+            remainingText: formatRemainingTime(total.personal - used.personal),
           },
           {
             type: "公假",
             used: used.official,
             total: total.official,
-            remainingText: `剩餘 ${(total.official - used.official) / 8} 天`,
+            remainingText: formatRemainingTime(total.official - used.official),
           },
         ];
         setLeaveCards(cards);
