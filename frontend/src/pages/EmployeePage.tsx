@@ -132,8 +132,8 @@ function EmployeePage() {
       <LeaveRecordTable
         type={TableType.manager}
         employeeData={employeeData.map((e) => ({
-          id: parseInt(e.userId.replace(/\D/g, ""), 10), // Convert userId to a numeric id
-          name: e.name,
+          id: parseInt(e.userId.replace(/\D/g, ""), 10),
+          name: e.userId,
         }))}
       />
     </div>

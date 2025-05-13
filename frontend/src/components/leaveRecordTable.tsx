@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
 import { useApprovalRecords } from "@/components/hooks/fetchApprovalRecords";
+import { useDepartmentRecords } from "@/components/hooks/fetchDepartmentRecord";
 import { useLeaveRecords } from "@/components/hooks/fetchLeaveRecord";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -72,13 +73,25 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
   const { records: approvalRecords, fetchApprovalRecords } =
     useApprovalRecords(userId);
 
+  const { records: departmentRecords, fetchDepartmentRecords } =
+    useDepartmentRecords(userId);
+
   const isApproval = type === TableType.approval;
-  const currentRecords = isApproval ? approvalRecords : records;
-  const refetch = isApproval ? fetchApprovalRecords : refetchNormalRecords;
+  const isManager = type === TableType.manager;
+  const currentRecords = isApproval
+    ? approvalRecords
+    : isManager
+    ? departmentRecords
+    : records;
+  const refetch = isApproval
+    ? fetchApprovalRecords
+    : isManager
+    ? fetchDepartmentRecords
+    : refetchNormalRecords;
 
   const handleSearch = () => {
     const filtered = currentRecords.filter((record) => {
-      const isNameMatch = !name || record.name === name;
+      const isNameMatch = !name || record.employeeId === name;
       const isStartDateMatch = !startDate || record.startDate >= startDate;
       const isEndDateMatch = !endDate || record.endDate <= endDate;
       const isTypeMatch =
