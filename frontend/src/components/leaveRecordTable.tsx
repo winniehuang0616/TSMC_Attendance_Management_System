@@ -3,6 +3,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
+import { useApprovalRecords } from "@/components/hooks/fetchApprovalRecords";
 import { useLeaveRecords } from "@/components/hooks/fetchLeaveRecord";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -30,7 +31,6 @@ import { LeaveStatus } from "@/models/enum/leaveStatus";
 import { TableType } from "@/models/enum/tableType";
 import type { Props } from "@/models/leave";
 import type { LeaveRecord } from "@/models/leave";
-import { useApprovalRecords } from "@/components/hooks/fetchApprovalRecords";
 
 import { DetailCard } from "./detailCard";
 import { EditCard } from "./editCard";
@@ -66,20 +66,15 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
   // HERE ! 取得請假紀錄 ( 要根據 TableType 打不同的 api )
   const userId = sessionStorage.getItem("userId");
 
-  const {
-    records,
-    fetchLeaveRecords: refetchNormalRecords,
-  } = useLeaveRecords(userId);
+  const { records, fetchLeaveRecords: refetchNormalRecords } =
+    useLeaveRecords(userId);
 
-  const {
-    records: approvalRecords,
-    fetchApprovalRecords,
-  } = useApprovalRecords(userId);
+  const { records: approvalRecords, fetchApprovalRecords } =
+    useApprovalRecords(userId);
 
   const isApproval = type === TableType.approval;
   const currentRecords = isApproval ? approvalRecords : records;
   const refetch = isApproval ? fetchApprovalRecords : refetchNormalRecords;
-
 
   const handleSearch = () => {
     const filtered = currentRecords.filter((record) => {
@@ -283,16 +278,10 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                     <TableCell>
                       {statusLabel[record.status] === "審核中" &&
                       type == TableType.personal ? (
-                        <EditCard
-                          detailData={record}
-                          onDeleted={refetch}
-                        />
+                        <EditCard detailData={record} onDeleted={refetch} />
                       ) : (
                         // HERE ! 根據 TableType 傳入不同資料和 refetch function
-                        <DetailCard
-                          detailData={record}
-                          onDeleted={refetch}
-                        />
+                        <DetailCard detailData={record} onDeleted={refetch} />
                       )}
                     </TableCell>
                   )}
