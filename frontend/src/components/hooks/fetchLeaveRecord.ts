@@ -5,9 +5,10 @@ import axios from "axios";
 import type { LeaveStatus } from "@/models/enum/leaveStatus";
 import type { LeaveRecord } from "@/models/leave";
 
-interface RawLeaveRecord {
+export interface RawLeaveRecord {
   leaveId: string;
   employeeId: string;
+  employeeName: string;
   leaveType: string;
   startDate: string;
   endDate: string;

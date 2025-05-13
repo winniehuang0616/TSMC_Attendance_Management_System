@@ -3,6 +3,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
+import { useApprovalRecords } from "@/components/hooks/fetchApprovalRecords";
 import { useLeaveRecords } from "@/components/hooks/fetchLeaveRecord";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -63,12 +64,20 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
   const [hasSearched, setHasSearched] = useState(false);
 
   // HERE ! 取得請假紀錄 ( 要根據 TableType 打不同的 api )
-  const { records, fetchLeaveRecords } = useLeaveRecords(
-    sessionStorage.getItem("userId"),
-  );
+  const userId = sessionStorage.getItem("userId");
+
+  const { records, fetchLeaveRecords: refetchNormalRecords } =
+    useLeaveRecords(userId);
+
+  const { records: approvalRecords, fetchApprovalRecords } =
+    useApprovalRecords(userId);
+
+  const isApproval = type === TableType.approval;
+  const currentRecords = isApproval ? approvalRecords : records;
+  const refetch = isApproval ? fetchApprovalRecords : refetchNormalRecords;
 
   const handleSearch = () => {
-    const filtered = records.filter((record) => {
+    const filtered = currentRecords.filter((record) => {
       const isNameMatch = !name || record.name === name;
       const isStartDateMatch = !startDate || record.startDate >= startDate;
       const isEndDateMatch = !endDate || record.endDate <= endDate;
@@ -245,7 +254,7 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                 </TableCell>
               </TableRow>
             ) : (
-              (hasSearched ? filteredRecords : records).map((record) => (
+              (hasSearched ? filteredRecords : currentRecords).map((record) => (
                 <TableRow
                   key={record.id}
                   className={`${type != TableType.personal && "h-[40px]"}`}
@@ -269,16 +278,10 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                     <TableCell>
                       {statusLabel[record.status] === "審核中" &&
                       type == TableType.personal ? (
-                        <EditCard
-                          detailData={record}
-                          onDeleted={fetchLeaveRecords}
-                        />
+                        <EditCard detailData={record} onDeleted={refetch} />
                       ) : (
                         // HERE ! 根據 TableType 傳入不同資料和 refetch function
-                        <DetailCard
-                          detailData={record}
-                          onDeleted={fetchLeaveRecords}
-                        />
+                        <DetailCard detailData={record} onDeleted={refetch} />
                       )}
                     </TableCell>
                   )}
