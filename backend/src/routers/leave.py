@@ -53,7 +53,7 @@ def review_leave(leaveId: str, req: ReviewRequest):
 @router.get("/manager/{manager_id}/department-leaves", response_model=List[LeaveInfo])
 def read_manager_department_leaves(manager_id: str):
     """
-    獲取指定員工（假設是主管）所在部門的其他員工的請假紀錄列表。
+    獲取主管所在部門所有員工 & 其他部門主管 請假紀錄列表。
     此端點 *假設* 提供的 manager_id 是有效的，且代表一位主管。
     """
     # 你可以在這裡加入非常基礎的 manager_id 格式檢查 (如果需要)
