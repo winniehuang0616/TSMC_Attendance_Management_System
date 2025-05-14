@@ -120,7 +120,7 @@ class LeaveService:
     @staticmethod
     def get_department_colleague_leaves(manager_id: str) -> List[Dict]:
         """
-        獲取指定主管同部門內，所有其他員工的請假紀錄。
+        獲取指定主管同部門所有員工 & 其他部門主管假單資料。
         Args:
             manager_id: 提出請求的主管的 employee_id。
         Returns:

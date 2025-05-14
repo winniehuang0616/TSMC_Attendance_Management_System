@@ -13,6 +13,7 @@ class LeaveStatus(str, Enum):
 class LeaveInfo(BaseModel):
     leaveId: str
     employeeId: str
+    employeeName: str
     status: LeaveStatus
     leaveType: str
     startDate: datetime
@@ -20,7 +21,9 @@ class LeaveInfo(BaseModel):
     reason: Optional[str] = None
     attachedFileBase64: Optional[str] = None
     agentId: Optional[str] = None
+    agentName: Optional[str] = None
     reviewerId: Optional[str] = None
+    reviewerName: Optional[str] = None
     comment: Optional[str] = None
     createDate: datetime
 

@@ -5,6 +5,7 @@ import type { TableType } from "./enum/tableType";
 
 export type LeaveRecord = {
   id: string;
+  employeeId: string;
   name: string;
   type: string;
   startDate: Date;
