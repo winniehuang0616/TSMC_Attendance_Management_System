@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: gcr.io/braided-course-452006-i9/tsmc-backend
+        image: gcr.io/tsmc-459812/tsmc-backend
         ports:
         - containerPort: 8000
         envFrom:
