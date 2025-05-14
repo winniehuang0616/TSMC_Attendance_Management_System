@@ -9,5 +9,4 @@ spec:
   ports:
     - port: 3306
       targetPort: 3306
-  clusterIP: None  # 如果你要做 StatefulSet，否則可以拿掉讓它是 ClusterIP
 

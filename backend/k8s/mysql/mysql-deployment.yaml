@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: mysql
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: mysql
@@ -15,10 +15,25 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql:5.7
+        image: mysql:8.0
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: my-secret-pw
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_PASSWORD
+
+
         ports:
         - containerPort: 3306
         volumeMounts:
