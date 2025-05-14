@@ -21,9 +21,5 @@ spec:
         envFrom:
         - secretRef:
             name: backend-secret
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql-secret
-              key: MYSQL_PASSWORD
+       
 
