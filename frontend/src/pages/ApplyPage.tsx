@@ -5,7 +5,7 @@ import { ApplyForm } from "../components/applyForm";
 import { LeaveBalanceCard } from "@/components/leaveBalanceCard";
 import { useAuth } from "@/context/authContext";
 import type { LeaveCard } from "@/models/card";
-
+import { API_ENDPOINTS } from "@/config/api";
 function ApplyPage() {
   const { userId } = useAuth(); // 從 AuthContext 獲取 userId 作為 employeeId
   const [leaveData, setLeaveData] = useState<LeaveCard[]>([]);
@@ -16,7 +16,7 @@ function ApplyPage() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `http://127.0.0.1:8000/api/leaves/${userId}/leaveCount`,
+          API_ENDPOINTS.LEAVES_COUNT(userId),
         );
 
         if (!response.ok) {

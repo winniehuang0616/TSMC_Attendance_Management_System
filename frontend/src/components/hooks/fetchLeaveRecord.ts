@@ -4,7 +4,7 @@ import axios from "axios";
 
 import type { LeaveStatus } from "@/models/enum/leaveStatus";
 import type { LeaveRecord } from "@/models/leave";
-
+import { API_ENDPOINTS } from "@/config/api";
 interface RawLeaveRecord {
   leaveId: string;
   employeeId: string;
@@ -25,7 +25,7 @@ export const useLeaveRecords = (employeeId: string | null) => {
     if (!employeeId) return;
 
     axios
-      .get(`http://localhost:8000/api/leaves/${employeeId}`)
+      .get(API_ENDPOINTS.LEAVES(employeeId))
       .then((res) => {
         const data = res.data.map(
           (item: RawLeaveRecord): LeaveRecord => ({

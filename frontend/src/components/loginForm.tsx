@@ -9,6 +9,7 @@ import { Card, CardContent } from "./ui/card";
 import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { API_ENDPOINTS } from "@/config/api";
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
@@ -25,13 +26,12 @@ const LoginForm: React.FC = () => {
 
     try {
       // Login API call
-      const loginResponse = await fetch("http://127.0.0.1:8000/api/login", {
+      const loginResponse = await fetch(API_ENDPOINTS.LOGIN, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        credentials: "include",
         body: JSON.stringify({
           employeeId,
           password,
@@ -41,7 +41,7 @@ const LoginForm: React.FC = () => {
       if (loginResponse.status === 200) {
         // Get user info after successful login
         const userInfoResponse = await fetch(
-          `http://127.0.0.1:8000/api/user/userinfo/${employeeId}`,
+          API_ENDPOINTS.USER_INFO(employeeId),
         );
         const userInfo = await userInfoResponse.json();
 

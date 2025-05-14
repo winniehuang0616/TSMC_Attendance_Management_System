@@ -42,7 +42,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Agent } from "@/models/detail";
 import type { LeaveRecord } from "@/models/leave";
-
+import { API_ENDPOINTS } from "@/config/api";
 // 透過 api 取得代理人清單
 const agentData: Agent[] = [
   { id: 1, name: "111-王小明" },
@@ -137,7 +137,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       agentId: data.agent,
     };
     axios
-      .put(`http://localhost:8000/api/leaves/${leaveId}`, payload)
+      .put(API_ENDPOINTS.LEAVES(leaveId), payload)
       .then((response) => {
         toast({
           title: "請假表單內容已更新",
@@ -157,7 +157,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8000/api/leaves/${detailData.id}`);
+      await axios.delete(API_ENDPOINTS.LEAVES(detailData.id));
       onDeleted();
       toast({
         title: "撤回假單",

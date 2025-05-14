@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/context/authContext";
 import { cn } from "@/lib/utils";
-import type { Agent } from "@/models/detail";
+import { API_ENDPOINTS } from "@/config/api";
 
 // 在文件頂部新增假別對應表
 const LEAVE_TYPE_MAP: Record<string, string> = {
@@ -69,7 +69,7 @@ export function ApplyForm() {
     const fetchAgentData = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/user/agent/${userId}`,
+          API_ENDPOINTS.USER_AGENT(userId), // 使用 API_ENDPOINTS
         );
         if (response.ok) {
           const data = await response.json();
@@ -125,19 +125,14 @@ export function ApplyForm() {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      // 將檔案轉換為 base64
-      let attachedFileBase64 = ""; // 更改變數名稱從 attachedFileUrl 為 attachedFileBase64
-      let attachedFileName = "";
-      let attachedFileType = "";
+      let attachedFileBase64 = "";
 
       if (data.file) {
-        attachedFileName = data.file.name;
-        attachedFileType = data.file.type;
         const reader = new FileReader();
         attachedFileBase64 = await new Promise((resolve) => {
           reader.onloadend = () => {
             const base64String = reader.result as string;
-            resolve(base64String.split(",")[1]); // 只取 base64 內容部分
+            resolve(base64String.split(",")[1]);
           };
           reader.readAsDataURL(data.file);
         });
@@ -152,18 +147,18 @@ export function ApplyForm() {
 
       // 準備請求體
       const requestBody = {
-        leaveType: LEAVE_TYPE_MAP[data.type] || data.type, // 使用對應表轉換假別
+        leaveType: LEAVE_TYPE_MAP[data.type] || data.type,
         startDate: formatDateTime(data.start, data.startHour),
         endDate: formatDateTime(data.end, data.endHour),
         reason: data.reason,
-        attachedFileBase64: attachedFileBase64, // 更改變數名稱
-        agentId: data.agent.split("-")[0], // 只取員工編號部分
-        createDate: new Date().toISOString(), // 使用 ISO 格式
+        attachedFileBase64: attachedFileBase64,
+        agentId: data.agent.split("-")[0],
+        createDate: new Date().toISOString(),
       };
 
       // 發送請求
       const response = await fetch(
-        `http://127.0.0.1:8000/api/leaves/${userId}`,
+        API_ENDPOINTS.LEAVES(userId),
         {
           method: "POST",
           headers: {

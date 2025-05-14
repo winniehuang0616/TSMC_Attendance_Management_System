@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { LeaveRecord } from "@/models/leave";
-
+import { API_ENDPOINTS } from "@/config/api";
 const leaveTypeLabel: Record<string, string> = {
   annual: "特休",
   sick: "病假",
@@ -40,7 +40,7 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
   const handleDelete = async () => {
     try {
       if (detailData.startDate > new Date()) {
-        await axios.delete(`http://localhost:8000/api/leaves/${detailData.id}`);
+        await axios.delete(API_ENDPOINTS.LEAVES(detailData.id));
         onDeleted();
         toast({
           title: "撤回假單",
@@ -90,7 +90,7 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
 
     // 透過 API 更新假單
     axios
-      .put(`http://localhost:8000/api/leaves/${detailData.id}/review`, payload)
+      .put(API_ENDPOINTS.LEAVE_REVIEW(detailData.id), payload)
       .then(() => {
         setOpen(false);
         onDeleted();

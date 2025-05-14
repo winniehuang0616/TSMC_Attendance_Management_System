@@ -5,7 +5,7 @@ import { LeaveRecordTable } from "@/components/leaveRecordTable";
 import { useAuth } from "@/context/authContext";
 import type { LeaveCard } from "@/models/card";
 import { TableType } from "@/models/enum/tableType";
-
+import { API_ENDPOINTS } from "@/config/api";
 function PersonalPage() {
   const { userId } = useAuth();
   const [leaveData, setLeaveData] = useState<LeaveCard[]>([]);
@@ -16,7 +16,7 @@ function PersonalPage() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `http://127.0.0.1:8000/api/leaves/${userId}/leaveCount`,
+          API_ENDPOINTS.LEAVES_COUNT(userId),
         );
 
         if (!response.ok) {

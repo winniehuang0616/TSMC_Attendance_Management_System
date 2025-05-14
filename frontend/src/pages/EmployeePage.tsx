@@ -13,6 +13,7 @@ import { useAuth } from "@/context/authContext";
 import type { LeaveCard } from "@/models/card";
 import type { EmployeeApiData } from "@/models/employeeApi";
 import { TableType } from "@/models/enum/tableType";
+import { API_ENDPOINTS } from "@/config/api";
 
 function EmployeePage() {
   const { userId } = useAuth();
@@ -22,7 +23,7 @@ function EmployeePage() {
 
   // 取得 API 資料
   useEffect(() => {
-    fetch(`http://localhost:8000/api/user/department/employeesInfo/${userId}`)
+    fetch(API_ENDPOINTS.DEPARTMENT_EMPLOYEES(userId))
       .then((res) => res.json())
       .then((data: EmployeeApiData[]) => {
         setEmployeeData(data);
@@ -33,7 +34,7 @@ function EmployeePage() {
   useEffect(() => {
     if (!name) return;
 
-    fetch(`http://localhost:8000/api/leaves/${name}/leaveCount`)
+    fetch(API_ENDPOINTS.LEAVES_COUNT(name))
       .then((res) => res.json())
       .then((data) => {
         const used = data.usedLeaves.used_hours;
