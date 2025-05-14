@@ -16,8 +16,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { LeaveRecord } from "@/models/leave";
 import { API_ENDPOINTS } from "@/config/api";
+import type { LeaveRecord } from "@/models/leave";
+
 const leaveTypeLabel: Record<string, string> = {
   annual: "特休",
   sick: "病假",

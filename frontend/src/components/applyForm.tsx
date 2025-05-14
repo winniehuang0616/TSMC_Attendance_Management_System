@@ -30,9 +30,9 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { API_ENDPOINTS } from "@/config/api";
 import { useAuth } from "@/context/authContext";
 import { cn } from "@/lib/utils";
-import { API_ENDPOINTS } from "@/config/api";
 
 // 在文件頂部新增假別對應表
 const LEAVE_TYPE_MAP: Record<string, string> = {
@@ -157,16 +157,13 @@ export function ApplyForm() {
       };
 
       // 發送請求
-      const response = await fetch(
-        API_ENDPOINTS.LEAVES(userId),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(requestBody),
+      const response = await fetch(API_ENDPOINTS.LEAVES(userId), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(requestBody),
+      });
 
       if (response.ok) {
         toast({

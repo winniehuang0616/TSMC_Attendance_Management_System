@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 
 import axios from "axios";
 
+import { API_ENDPOINTS } from "@/config/api";
 import type { LeaveStatus } from "@/models/enum/leaveStatus";
 import type { LeaveRecord } from "@/models/leave";
-import { API_ENDPOINTS } from "@/config/api";
-
 
 export interface RawLeaveRecord {
   leaveId: string;

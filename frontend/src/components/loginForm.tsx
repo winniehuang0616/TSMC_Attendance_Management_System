@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useToast } from "@/components/hooks/use-toast";
+import { API_ENDPOINTS } from "@/config/api";
 import { useAuth } from "@/context/authContext";
 
 import { Button } from "./ui/button";
@@ -9,7 +10,6 @@ import { Card, CardContent } from "./ui/card";
 import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { API_ENDPOINTS } from "@/config/api";
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();

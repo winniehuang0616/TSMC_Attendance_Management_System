@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import { ApplyForm } from "../components/applyForm";
 
 import { LeaveBalanceCard } from "@/components/leaveBalanceCard";
+import { API_ENDPOINTS } from "@/config/api";
 import { useAuth } from "@/context/authContext";
 import type { LeaveCard } from "@/models/card";
-import { API_ENDPOINTS } from "@/config/api";
+
 function ApplyPage() {
   const { userId } = useAuth(); // 從 AuthContext 獲取 userId 作為 employeeId
   const [leaveData, setLeaveData] = useState<LeaveCard[]>([]);
@@ -15,9 +16,7 @@ function ApplyPage() {
     const fetchLeaveData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(
-          API_ENDPOINTS.LEAVES_COUNT(userId),
-        );
+        const response = await fetch(API_ENDPOINTS.LEAVES_COUNT(userId));
 
         if (!response.ok) {
           throw new Error("Failed to fetch leave data");

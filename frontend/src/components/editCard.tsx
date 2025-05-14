@@ -39,10 +39,11 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { API_ENDPOINTS } from "@/config/api";
 import { cn } from "@/lib/utils";
 import type { Agent } from "@/models/detail";
 import type { LeaveRecord } from "@/models/leave";
-import { API_ENDPOINTS } from "@/config/api";
+
 // 透過 api 取得代理人清單
 const agentData: Agent[] = [
   { id: 1, name: "111-王小明" },
