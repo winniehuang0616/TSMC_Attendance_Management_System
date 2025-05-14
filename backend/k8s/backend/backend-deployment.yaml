@@ -18,16 +18,9 @@ spec:
         image: gcr.io/braided-course-452006-i9/tsmc-backend
         ports:
         - containerPort: 8000
-        env:
-        - name: DB_HOST
-          value: mysql
-        - name: DB_PORT
-          value: "3306"
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: mysql-secret
-              key: MYSQL_USER
+        envFrom:
+        - secretRef:
+            name: backend-secret
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
