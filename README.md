@@ -50,7 +50,7 @@ docker push gcr.io/tsmc-459812/tsmc-backend
 cd frontend
 
 # 構建Docker映像
-docker build -t gcr.io/tsmc-459812/tsmc-frontend .
+docker build --network=host -t gcr.io/tsmc-459812/tsmc-frontend .
 
 # 推送到Google Container Registry
 docker push gcr.io/tsmc-459812/tsmc-frontend
