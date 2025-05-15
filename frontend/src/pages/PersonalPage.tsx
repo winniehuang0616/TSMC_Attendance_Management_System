@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 import { LeaveBalanceCard } from "@/components/leaveBalanceCard";
 import { LeaveRecordTable } from "@/components/leaveRecordTable";
+import { API_ENDPOINTS } from "@/config/api";
 import { useAuth } from "@/context/authContext";
 import type { LeaveCard } from "@/models/card";
 import { TableType } from "@/models/enum/tableType";
@@ -15,9 +16,7 @@ function PersonalPage() {
     const fetchLeaveData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/leaves/${userId}/leaveCount`,
-        );
+        const response = await fetch(API_ENDPOINTS.LEAVES_COUNT(userId));
 
         if (!response.ok) {
           throw new Error("Failed to fetch leave data");

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 import axios from "axios";
 
+import { API_ENDPOINTS } from "@/config/api";
 import type { LeaveStatus } from "@/models/enum/leaveStatus";
 import type { LeaveRecord } from "@/models/leave";
 
@@ -26,12 +27,13 @@ export const useLeaveRecords = (employeeId: string | null) => {
     if (!employeeId) return;
 
     axios
-      .get(`http://localhost:8000/api/leaves/${employeeId}`)
+      .get(API_ENDPOINTS.LEAVES(employeeId))
       .then((res) => {
         const data = res.data.map(
           (item: RawLeaveRecord): LeaveRecord => ({
             id: item.leaveId,
-            name: item.employeeId,
+            employeeId: item.employeeId,
+            name: item.employeeName,
             type: item.leaveType,
             startDate: new Date(item.startDate),
             startTime: new Date(item.startDate).getHours(),

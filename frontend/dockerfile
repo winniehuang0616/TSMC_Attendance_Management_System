@@ -1,0 +1,32 @@
+# 第一階段：構建應用
+FROM node:18-alpine AS build
+
+# 設定工作目錄
+WORKDIR /app
+
+# 複製 package.json 和 yarn.lock
+COPY package.json yarn.lock ./
+
+# 安裝依賴
+RUN yarn install --frozen-lockfile
+
+# 複製其餘源碼
+COPY . .
+
+# 構建應用 (使用生產環境配置)
+RUN yarn build --mode production
+
+# 第二階段：設置生產環境
+FROM nginx:alpine
+
+# 複製 nginx 配置文件
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# 從構建階段複製構建好的文件
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# 暴露 80 端口
+EXPOSE 80
+
+# 啟動 nginx
+CMD ["nginx", "-g", "daemon off;"]

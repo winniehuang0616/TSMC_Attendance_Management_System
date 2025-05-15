@@ -16,7 +16,9 @@ origins = [
     "http://localhost:5173",  # Vite default port
     "http://127.0.0.1:5173",
     "http://localhost:3000",  # Alternative development port
-    "*"
+    "http://localhost",
+    "*",
+
 ]
 
 # Add CORS middleware
