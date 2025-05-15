@@ -18,6 +18,7 @@ origins = [
     "http://localhost:3000",  # Alternative development port
     "http://localhost",
     "*",
+
 ]
 
 # Add CORS middleware
