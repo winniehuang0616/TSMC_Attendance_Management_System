@@ -1,4 +1,4 @@
-export const API_BASE_URL =  "";
+export const API_BASE_URL = "";
 
 /**
  * API 端點定義

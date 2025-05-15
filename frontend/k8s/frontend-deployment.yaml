@@ -12,12 +12,12 @@ spec:
         app: frontend
     spec:
       containers:
-      - name: frontend
-        image: gcr.io/tsmc-459812/tsmc-frontend
-        ports:
-        - containerPort: 80
-        resources:
-          requests:
-            cpu: 100m
-          limits:
-            cpu: 300m
+        - name: frontend
+          image: gcr.io/tsmc-459812/tsmc-frontend
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 100m
+            limits:
+              cpu: 300m
