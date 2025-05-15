@@ -35,3 +35,12 @@ app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(leave.router)
 app.include_router(notify.router)
+
+
+@app.get("/")
+def root():
+    return {"status": "ok"}
+
+@app.get("/api/ping")
+def ping():
+    return {"message": "pong"}
