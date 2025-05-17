@@ -19,6 +19,8 @@ function EmployeePage() {
   const [employeeData, setEmployeeData] = useState<EmployeeApiData[]>([]);
   const [name, setName] = useState<string>("");
   const [leaveCards, setLeaveCards] = useState<LeaveCard[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const formatRemainingTime = (remainingHours: number) => {
     if (remainingHours < 0) remainingHours = 0;
@@ -29,20 +31,45 @@ function EmployeePage() {
 
   // 取得 API 資料
   useEffect(() => {
-    fetch(`http://localhost:8000/api/user/department/employeesInfo/${userId}`)
-      .then((res) => res.json())
-      .then((data: EmployeeApiData[]) => {
-        setEmployeeData(data);
-      })
-      .catch((err) => console.error("Fetch error:", err));
-  }, []);
+    const fetchEmployeeData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await fetch(
+          `http://localhost:8000/api/user/department/employeesInfo/${userId}`,
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        // 確保 data 是陣列
+        setEmployeeData(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError("無法載入員工資料");
+        setEmployeeData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (userId) {
+      fetchEmployeeData();
+    }
+  }, [userId]);
 
   useEffect(() => {
     if (!name) return;
 
-    fetch(`http://localhost:8000/api/leaves/${name}/leaveCount`)
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchLeaveCount = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/leaves/${name}/leaveCount`,
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
         const used = data.usedLeaves.used_hours;
         const total = data.allocatedLeaves.allocated_hours;
 
@@ -73,11 +100,26 @@ function EmployeePage() {
           },
         ];
         setLeaveCards(cards);
-      })
-      .catch((err) => console.error("Leave count error:", err));
+      } catch (err) {
+        console.error("Leave count error:", err);
+        setLeaveCards([]);
+      }
+    };
+
+    fetchLeaveCount();
   }, [name]);
 
-  const selectedEmployee = employeeData.find((e) => e.userId === name);
+  const selectedEmployee = Array.isArray(employeeData)
+    ? employeeData.find((e) => e.userId === name)
+    : null;
+
+  if (isLoading) {
+    return <div className="p-4">載入中...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-500">{error}</div>;
+  }
 
   return (
     <div>
