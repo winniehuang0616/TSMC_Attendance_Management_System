@@ -35,7 +35,9 @@ function EmployeePage() {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await fetch(`http://localhost:8000/api/user/department/employeesInfo/${userId}`);
+        const response = await fetch(
+          `http://localhost:8000/api/user/department/employeesInfo/${userId}`,
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -61,7 +63,9 @@ function EmployeePage() {
 
     const fetchLeaveCount = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/leaves/${name}/leaveCount`);
+        const response = await fetch(
+          `http://localhost:8000/api/leaves/${name}/leaveCount`,
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -105,7 +109,9 @@ function EmployeePage() {
     fetchLeaveCount();
   }, [name]);
 
-  const selectedEmployee = Array.isArray(employeeData) ? employeeData.find((e) => e.userId === name) : null;
+  const selectedEmployee = Array.isArray(employeeData)
+    ? employeeData.find((e) => e.userId === name)
+    : null;
 
   if (isLoading) {
     return <div className="p-4">載入中...</div>;
