@@ -47,4 +47,7 @@ images:
   - gcr.io/$PROJECT_ID/tsmc-backend
   - gcr.io/$PROJECT_ID/tsmc-frontend
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 #test trigger
