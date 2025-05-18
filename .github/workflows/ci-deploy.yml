@@ -1,0 +1,76 @@
+name: CI and Deploy via Tag
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Lint and Format Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js for Project
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+
+      - name: Install Project Dependencies
+        run: yarn install
+        working-directory: ./frontend
+
+      - name: Run Project Linter
+        run: yarn lint
+        working-directory: ./frontend
+
+      - name: Run Project Prettier Check
+        run: yarn prettier --check .
+        working-directory: ./frontend
+
+  test:
+    name: Run Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Set environment variables
+        run: |
+          echo "DB_PORT=3306" >> $GITHUB_ENV
+          echo "DB_HOST=34.81.245.163" >> $GITHUB_ENV
+          echo "DB_USER=backend_user" >> $GITHUB_ENV
+          echo "DB_PASSWORD=StrongPassword123!" >> $GITHUB_ENV
+          echo "DB_NAME=leave_management" >> $GITHUB_ENV
+
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)/backend/src" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: PYTHONPATH=backend/src pytest -s backend/tests/
+
+  tag:
+    name: Create Deploy Tag
+    needs: [lint, test]  # 等待前兩個 job 都成功
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Create and Push Tag
+        run: |
+          TAG_NAME=deploy-v$(date +%Y%m%d%H%M%S)
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
