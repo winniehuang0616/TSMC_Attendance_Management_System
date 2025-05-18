@@ -1,11 +1,12 @@
 steps:
   - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
     args:
-      - container
-      - clusters
-      - get-credentials
-      - tsmc         
-      - --region=asia-east1-b      
+      - '-c'
+      - |
+        gcloud container clusters get-credentials tsmc \
+          --region=asia-east1-b \
+          --project=$PROJECT_ID    
   # Build & push backend
   - name: 'gcr.io/cloud-builders/docker'
     dir: 'backend'
