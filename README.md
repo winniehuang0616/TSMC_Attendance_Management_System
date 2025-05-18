@@ -25,7 +25,7 @@
 gcloud config set project tsmc-459812
 
 # 連接到GKE集群
-gcloud container clusters get-credentials tsmc --zone asia-east1-a
+gcloud container clusters get-credentials tsmc --zone asia-east1-b
 ```
 
 ### 2. 構建與推送Docker映像
