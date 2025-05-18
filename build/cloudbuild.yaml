@@ -7,12 +7,6 @@ steps:
         gcloud container clusters get-credentials tsmc \
           --region=asia-east1-b \
           --project=$PROJECT_ID 
-    # 所有 kubectl 步驟加入 env 變數
-  - name: 'gcr.io/cloud-builders/kubectl'
-    args: ['apply', '-f', '...']
-    env:
-      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
-      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
   # Build & push backend
   - name: 'gcr.io/cloud-builders/docker'
     dir: 'backend'
@@ -32,30 +26,60 @@ steps:
   # Deploy MySQL
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'backend/k8s/mysql/mysql-pvc.yaml']
+    env:
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
+      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'backend/k8s/mysql/mysql-deployment.yaml']
+    env:
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
+      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'backend/k8s/mysql/mysql-service.yaml']
+    env:
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
+      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
 
   # Deploy backend
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'backend/k8s/backend/backend-deployment.yaml']
+    env:
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
+      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'backend/k8s/backend/backend-service.yaml']
+    env:
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
+      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'backend/k8s/backend/backend-hpa.yaml']
+    env:
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
+      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
 
   # Deploy frontend
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'frontend/k8s/frontend-deployment.yaml']
+    env:
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
+      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'frontend/k8s/frontend-service.yaml']
+    env:
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
+      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'frontend/k8s/frontend-hpa.yaml']
+    env:
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
+      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
 
   # Deploy ingress
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'frontend/k8s/ingress.yaml']
+    env:
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
+      - CLOUDSDK_CONTAINER_CLUSTER=tsmc
 
 images:
   - gcr.io/$PROJECT_ID/tsmc-backend
