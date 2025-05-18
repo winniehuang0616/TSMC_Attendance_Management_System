@@ -1,6 +1,12 @@
 name: CI and Deploy via Tag
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - production
+  pull_request:
+    branches:
+      - production
 
 jobs:
   lint:
@@ -57,8 +63,8 @@ jobs:
 
   tag:
     name: Create Deploy Tag
-    needs: [lint, test]  # 等待前兩個 job 都成功
-    if: ${{ success() }}
+    needs: [lint, test]
+    if: success()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
