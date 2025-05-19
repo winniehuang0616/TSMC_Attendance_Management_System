@@ -49,7 +49,8 @@ def get_used_leaves(employee_id):
             SELECT leave_type, SUM(TIMESTAMPDIFF(HOUR, start_time, end_time)) AS used_hours
             FROM leave_info
             WHERE employee_id = %s
-              AND YEAR(start_time) = %s
+            AND YEAR(start_time) = %s
+            AND status in (0,1)
             GROUP BY leave_type
         """
         cursor.execute(sql, (employee_id, current_year))
