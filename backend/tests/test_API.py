@@ -49,7 +49,7 @@ def test_get_attendance(client):
 
 # GET /api/user/agent/{employee_id}
 def test_get_useragent_list(client):
-    res = client.get("/api/useragent/EMP001")
+    res = client.get("/api/user/agent/EMP001")
     assert res.status_code == 200
     assert isinstance(res.json(), list)
 
