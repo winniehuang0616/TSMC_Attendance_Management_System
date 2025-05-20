@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import auth, user, leave, notify
 
+# Prometheus 監控
+from prometheus_fastapi_instrumentator import Instrumentator
+
 app = FastAPI(
     title="Leave and Attendance System",
     description="Backend API for Leave and Attendance Management System",
@@ -36,6 +39,9 @@ app.include_router(user.router)
 app.include_router(leave.router)
 app.include_router(notify.router)
 
+# 初始化 Prometheus
+instrumentator = Instrumentator().instrument(app)
+instrumentator.expose(app, endpoint="/metrics")
 
 @app.get("/")
 def root():
