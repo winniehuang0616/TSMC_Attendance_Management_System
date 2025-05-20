@@ -48,16 +48,26 @@ interface AgentResponse {
   name: string;
 }
 
-const FormSchema = z.object({
-  start: z.date(),
-  end: z.date({ required_error: "請選擇結束日期" }),
-  startHour: z.string().min(1, "請輸入幾點"),
-  endHour: z.string().min(1, "請輸入幾點"),
-  type: z.string().min(1, "請選擇假別"),
-  agent: z.string().min(1, "請輸入代理人"),
-  reason: z.string().min(1, "請輸入原因"),
-  file: z.any().optional(),
-});
+const FormSchema = z
+  .object({
+    start: z.date(),
+    end: z.date({ required_error: "請選擇結束日期" }),
+    startHour: z.string().min(1, "請輸入幾點"),
+    endHour: z.string().min(1, "請輸入幾點"),
+    type: z.string().min(1, "請選擇假別"),
+    agent: z.string().min(1, "請輸入代理人"),
+    reason: z.string().min(1, "請輸入原因"),
+    file: z.any().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.start && data.end && data.end <= data.start) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "結束時間不能早於開始時間",
+        path: ["end"],
+      });
+    }
+  });
 
 export function ApplyForm() {
   const { toast } = useToast();
@@ -233,6 +243,17 @@ export function ApplyForm() {
                                 onSelect={(date) => {
                                   if (date) field.onChange(date);
                                 }}
+                                disabled={
+                                  fieldKey === "end"
+                                    ? (date) => {
+                                        const startDate =
+                                          form.getValues("start");
+                                        return startDate
+                                          ? date < startDate
+                                          : false;
+                                      }
+                                    : undefined
+                                }
                                 initialFocus
                               />
                             </PopoverContent>
