@@ -6,7 +6,7 @@ steps:
       - clusters
       - get-credentials
       - tsmc
-      - --region=asia-east1
+      - --region=asia-east1-b
       - --project=$PROJECT_ID
 
   # Build & push backend image
