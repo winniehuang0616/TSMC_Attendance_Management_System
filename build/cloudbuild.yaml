@@ -27,26 +27,26 @@ steps:
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'backend/k8s']
     env:
-      - CLOUDSDK_COMPUTE_REGION=asia-east1
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
 
   # Apply frontend manifests
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'frontend/k8s']
     env:
-      - CLOUDSDK_COMPUTE_REGION=asia-east1
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
 
   # Rollout restart to enforce image pull
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['rollout', 'restart', 'deployment/tsmc-backend']
     env:
-      - CLOUDSDK_COMPUTE_REGION=asia-east1
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['rollout', 'restart', 'deployment/tsmc-frontend']
     env:
-      - CLOUDSDK_COMPUTE_REGION=asia-east1
+      - CLOUDSDK_COMPUTE_REGION=asia-east1-b
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
 
 images:
