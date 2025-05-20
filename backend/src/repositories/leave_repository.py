@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from repositories.db_connection import get_db_connection
 from typing import List, Dict
-from logging.config import setup_logger
+from logging_config import setup_logger
 
 logger = setup_logger("leave_repository")
 

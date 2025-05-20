@@ -2,7 +2,7 @@
 import mysql.connector
 import traceback
 from config import DB_CONFIG
-from logging.config import setup_logger
+from logging_config import setup_logger
 
 logger = setup_logger("db_connection")
 
