@@ -1,11 +1,10 @@
-import logging
 import uuid
 from datetime import datetime
 from repositories.db_connection import get_db_connection
 from typing import List, Dict
+from logging.config import setup_logger
 
-
-logger = logging.getLogger(__name__)
+logger = setup_logger("leave_repository")
 
 # leave_type 與資料庫對應
 TYPE_MAP = {'annual': 2, 'sick': 1, 'personal': 0, 'official': 3}
@@ -16,9 +15,10 @@ REVERSE_STATUS_MAP = {v: k for k, v in STATUS_MAP.items()}
 
 
 def get_allocated_leaves(employee_id):
+    logger.info('[get_allocated_leaves] 執行開始')
     conn, cursor = get_db_connection()
     try:
-        # 讀取當年價別總時數
+        # 讀取當年假別總時數
         year = str(datetime.now().year)
         sql = "SELECT leave_type, allocated_hours FROM leave_balance WHERE employee_id = %s AND year = %s"
         cursor.execute(sql, (employee_id, year))
@@ -32,15 +32,19 @@ def get_allocated_leaves(employee_id):
             leave_type_name = REVERSE_TYPE_MAP.get(leave_type_id)
             if leave_type_name:
                 allocated[leave_type_name] = hrs
+        logger.info(f"[get_allocated_leaves] 成功 : 獲取員工 {employee_id} 的假別總時數")
         return {
             "employee_id": employee_id,
             "allocated_hours": allocated
         }
+    except Exception as e:
+        logger.error(f"[get_allocated_leaves] 發生錯誤 : {e}")
     finally:
         cursor.close()
         conn.close()
 
 def get_used_leaves(employee_id):
+    logger.info('[get_used_leaves] 執行開始')
     conn, cursor = get_db_connection()
     try:
         
@@ -56,25 +60,26 @@ def get_used_leaves(employee_id):
         rows = cursor.fetchall()
         used = {name: 0 for name in TYPE_MAP}
         print("[DEBUG] get_used_leaves rows:", rows)  # ⭐ 加這行 debug
-
         for row in rows:
             leave_type_id = row['leave_type']
             hrs = row['used_hours']
             leave_type_name = REVERSE_TYPE_MAP.get(leave_type_id)
             if leave_type_name:
                 used[leave_type_name] = float(hrs or 0)
-
+        logger.info(f"[get_used_leaves] 成功 : 獲取員工 {employee_id} 的使用假別總時數")
         return {
             "employee_id": employee_id,
             "used_hours": used
         }
-
+    except Exception as e:
+        logger.error(f"[get_used_leaves] 發生錯誤 : {e}")
     finally:
         cursor.close()
         conn.close()
 
 
 def get_leaves_by_employee(employee_id: str) -> list[dict]:
+    logger.info('[get_leaves_by_employee] 執行開始')
     """
     讀取該員工全部請假紀錄，並直接回傳符合 LeaveInfo schema 的 list[dict]：
     startDate/endDate 都保留 datetime 型別，讓 Pydantic 自動處理。
@@ -98,7 +103,6 @@ def get_leaves_by_employee(employee_id: str) -> list[dict]:
         cursor.execute(sql, (employee_id,))
         print(employee_id)
         rows = cursor.fetchall()  # list of dicts
-
         results: list[dict] = []
         for row in rows:
             results.append({
@@ -119,13 +123,16 @@ def get_leaves_by_employee(employee_id: str) -> list[dict]:
                 "comment":              row["comment"],
                 "createDate":           row["create_time"],
             })
+        logger.info(f"[get_leaves_by_employee] 成功 : 獲取員工 {employee_id} 全部的請假紀錄")
         return results
-
+    except Exception as e:
+        logger.error(f"[get_leaves_by_employee] 發生錯誤 : {e}")
     finally:
         cursor.close()
         conn.close()
 
 def get_leave_by_leaveid(leave_id: str) -> dict:
+    logger.info('[get_leave_by_leaveid] 執行開始')
     """
     讀取該 leave_id 的請假紀錄，並直接回傳符合 LeaveInfo schema 的 dict。
     """
@@ -147,10 +154,10 @@ def get_leave_by_leaveid(leave_id: str) -> dict:
         """
         cursor.execute(sql, (leave_id,))
         row = cursor.fetchone()  # dict
-
         if not row:
+            logger.error(f'[get_leave_by_leaveid] 發生錯誤 : 找不到 {leave_id}')
             return None
-
+        logger.info(f'[get_leave_by_leaveid] 成功 : 獲取 {leave_id} 的詳細資料')
         return {
             "leaveId":              row["leave_id"],
             "employeeId":           row["employee_id"],
@@ -169,12 +176,14 @@ def get_leave_by_leaveid(leave_id: str) -> dict:
             "comment":              row["comment"],
             "createDate":           row["create_time"],
         }
-
+    except Exception as e:
+        logger.error(f"[get_leave_by_leaveid] 發生錯誤 : {e}")
     finally:
         cursor.close()
         conn.close()
 
 def get_attendance_by_employee(employee_id: str) -> list[dict]:
+    logger.info('[get_attendance_by_employee] 執行開始')
     conn, cursor = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     try:
@@ -202,13 +211,16 @@ def get_attendance_by_employee(employee_id: str) -> list[dict]:
                 "endDate":              row["end_time"],
                 "agentId":              row["agent_id"],
             })
+        logger.info('[get_attendance_by_employee] 成功 : 獲取員工的請假紀錄')
         return results
-
+    except Exception as e:
+        logger.error(f"[get_attendance_by_employee] 發生錯誤 : {e}")
     finally:
         cursor.close()
         conn.close()    
 
 def create_leave_form(data):
+    logger.info('[create_leave_form] 執行開始')
     conn, cursor = get_db_connection()
     # 使用 dictionary=True 才能用 row["欄位名"] 取值
     cursor = conn.cursor(dictionary=True)
@@ -245,8 +257,9 @@ def create_leave_form(data):
         cursor.execute(sql_select, (lid,))
         row = cursor.fetchone()
         if not row:
+            logger.error(f"[create_leave_form] 發生錯誤: 插入假單 {lid} 後無法讀取")
             raise RuntimeError(f"Inserted leave {lid} not found")
-
+        logger.info(f'[create_leave_form] 成功 : 已創建假單 {lid}')
         # 3) 組成 dict 回傳
         return {
             "leaveId":            row["leave_id"],
@@ -265,13 +278,14 @@ def create_leave_form(data):
 
     except Exception as e:
         conn.rollback()
-        logger.error(f"create_leave_form error: {e}")
+        logger.error(f"[create_leave_form] 發生錯誤: {e}")
         raise
     finally:
         cursor.close()
         conn.close()
 
 def update_leave_form(leave_id, data):
+    logger.info('[update_leave_form] 執行開始')
     conn, cursor = get_db_connection()
     try:
         # 只有 pending 狀態才能編輯
@@ -280,9 +294,11 @@ def update_leave_form(leave_id, data):
         )
         row = cursor.fetchone()
         if not row:
+            logger.error(f"[update_leave_form] 發生錯誤: 找不到假單 {leave_id}")
             return False
         status = row['status']
         if status != 0:
+            logger.error(f"[update_leave_form] 發生錯誤: 非 penging 狀態的假單 {leave_id}")
             raise ValueError("Only pending leave can be updated")
         lt = TYPE_MAP[data['leaveType']]
         new_st = datetime.strptime(data['startDate'], "%Y-%m-%d-%H-%M")
@@ -297,8 +313,10 @@ def update_leave_form(leave_id, data):
         )
         rows = cursor.execute(sql, params)
         conn.commit()
+        logger.info(f"[update_leave_form] 成功: 已更新假單 {leave_id}")
         return True
-    except:
+    except Exception as e:
+        logger.error(f"[update_leave_form] 發生錯誤: {e}")
         conn.rollback()
         raise
     finally:
@@ -306,6 +324,7 @@ def update_leave_form(leave_id, data):
         conn.close()
 
 def review_leave_form(leave_id, data):
+    logger.info('[review_leave_form] 執行開始')
     conn, cursor = get_db_connection()
     try:
         # 只有 pending 狀態才能編輯
@@ -314,10 +333,12 @@ def review_leave_form(leave_id, data):
         )
         row = cursor.fetchone()
         if not row:
+            logger.error(f"[review_leave_form] 發生錯誤: 找不到假單 {leave_id}")
             return False
         status = row['status']
         employee_id = row['employee_id']
         if status != 0:
+            logger.error(f"[review_leave_form] 發生錯誤: 假單 {leave_id} 非 pending 狀態")
             raise ValueError("Only pending leave can be reviewed")
         sql = (
             "UPDATE leave_info SET status = %s, reviewer_id = %s, comment = %s "
@@ -328,8 +349,10 @@ def review_leave_form(leave_id, data):
         )
         rows = cursor.execute(sql, params)
         conn.commit()
+        logger.info(f"[review_leave_form] 成功: 已核准假單 {leave_id}")
         return {status: True, "leave_id": leave_id, "employee_id": employee_id}
-    except:
+    except Exception as e:
+        logger.error(f"[review_leave_form] 發生錯誤: {e}")
         conn.rollback()
         raise
     finally:
@@ -337,6 +360,7 @@ def review_leave_form(leave_id, data):
         conn.close()
 
 def delete_leave_form(leave_id):
+    logger.info('[delete_leave_form] 執行開始')
     conn, cursor = get_db_connection()
     try:
         cursor.execute(
@@ -344,6 +368,7 @@ def delete_leave_form(leave_id):
         )
         row = cursor.fetchone()
         if not row:
+            logger.error(f"[delete_leave_form] 發生錯誤: 找不到假單 {leave_id}")
             return False
         status = row['status']
         st = row['start_time']
@@ -352,13 +377,16 @@ def delete_leave_form(leave_id):
         now = datetime.now()
         # Pending 或 審核後開始時間前 均可刪除 (st 不用 [0] 我直接改了)
         if status != 0 and now >= st:
+            logger.error(f"[delete_leave_form] 發生錯誤: 假單 {leave_id} 已生效，無法刪除")
             raise ValueError("Cannot delete leave after start time")
         row = cursor.execute(
             "DELETE FROM leave_info WHERE leave_id = %s", (leave_id,)
         )
         conn.commit()
+        logger.info(f"[delete_leave_form] 成功: 已刪除假單 {leave_id}")
         return True, reviewer_id, employee_id
-    except:
+    except Exception as e:
+        logger.error(f"[delete_leave_form] 發生錯誤: {e}")
         conn.rollback()
         raise
     finally:
@@ -366,11 +394,12 @@ def delete_leave_form(leave_id):
         conn.close()
 
 def get_leaves_by_employee_ids(employee_ids: List[str]) -> list[dict]:
+    logger.info('[get_leaves_by_employee_ids] 執行開始')
     """
     讀取多個員工 ID 的全部請假紀錄，並回傳符合 LeaveInfo schema 的 list[dict]。
     """
     if not employee_ids: # 如果 ID 列表為空，直接返回空列表，避免無效查詢
-        logger.info("傳入的 employee_ids 列表為空，無需查詢假單。")
+        logger.info("[get_leaves_by_employee_ids] 提醒: 傳入的 employee_ids 列表為空，無需查詢假單。")
         return []
 
     conn, cursor = get_db_connection()
@@ -398,7 +427,6 @@ def get_leaves_by_employee_ids(employee_ids: List[str]) -> list[dict]:
         # 將 employee_ids 列表轉換為元組傳遞給 execute
         cursor.execute(sql, tuple(employee_ids))
         rows = cursor.fetchall() # list of dicts
-
         for row in rows:
             # 轉換為前端期望的格式 (與 get_leaves_by_employee 邏輯保持一致)
             results.append({
@@ -418,11 +446,11 @@ def get_leaves_by_employee_ids(employee_ids: List[str]) -> list[dict]:
                 "comment":              row["comment"],
                 "createDate":           row["create_time"], # 直接傳遞 datetime 物件
             })
-        logger.info(f"成功查詢員工 {employee_ids} 的 {len(results)} 筆假單記錄。")
+        logger.info(f"[get_leaves_by_employee_ids] 成功 : 獲取主管 {employee_ids} 下員工的 {len(results)} 筆假單記錄。")
         return results
 
     except Exception as e:
-        logger.error(f"查詢員工列表 {employee_ids} 的假單時發生錯誤: {e}")
+        logger.error(f"[get_leaves_by_employee_ids] 發生錯誤 : {e}")
         # 根據需要決定是拋出異常還是返回空列表
         # raise e
         return [] # 發生錯誤時返回空列表可能更安全

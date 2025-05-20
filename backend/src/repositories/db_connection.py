@@ -1,10 +1,10 @@
 
 import mysql.connector
-import logging
 import traceback
 from config import DB_CONFIG
+from logging.config import setup_logger
 
-logger = logging.getLogger(__name__)
+logger = setup_logger("db_connection")
 
 def get_db_connection():
     """
