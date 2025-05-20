@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 
 import axios from "axios";
 
-import type { RawLeaveRecord } from "./fetchLeaveRecord";
 import { API_BASE_URL } from "@/config/api";
+
+import type { RawLeaveRecord } from "./fetchLeaveRecord";
 
 export function useApprovalRecords(userId: string | null) {
   const [records, setRecords] = useState([]);
