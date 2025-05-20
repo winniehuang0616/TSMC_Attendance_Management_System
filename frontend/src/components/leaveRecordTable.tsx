@@ -187,6 +187,7 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                   mode="single"
                   selected={endDate}
                   onSelect={setEndDate}
+                  disabled={(date) => startDate ? date < startDate : false}
                 />
               </PopoverContent>
             </Popover>

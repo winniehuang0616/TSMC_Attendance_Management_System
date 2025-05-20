@@ -57,6 +57,14 @@ const FormSchema = z.object({
   agent: z.string().min(1, "請輸入代理人"),
   reason: z.string().min(1, "請輸入原因"),
   file: z.any().optional(),
+}).superRefine((data, ctx) => {
+  if (data.start && data.end && data.end <= data.start) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "結束時間不能早於開始時間",
+      path: ["end"]
+    });
+  }
 });
 
 export function ApplyForm() {
@@ -233,6 +241,10 @@ export function ApplyForm() {
                                 onSelect={(date) => {
                                   if (date) field.onChange(date);
                                 }}
+                                disabled={fieldKey === "end" ? (date) => {
+                                  const startDate = form.getValues("start");
+                                  return startDate ? date < startDate : false;
+                                } : undefined}
                                 initialFocus
                               />
                             </PopoverContent>
