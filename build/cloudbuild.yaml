@@ -82,12 +82,12 @@ steps:
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
   # Rollout restart to enforce image pull
   - name: 'gcr.io/cloud-builders/kubectl'
-    args: ['rollout', 'restart', 'deployment/tsmc-backend']
+    args: ['rollout', 'restart', 'deployment/backend']
     env:
       - CLOUDSDK_COMPUTE_REGION=asia-east1-b
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
   - name: 'gcr.io/cloud-builders/kubectl'
-    args: ['rollout', 'restart', 'deployment/tsmc-frontend']
+    args: ['rollout', 'restart', 'deployment/frontend']
     env:
       - CLOUDSDK_COMPUTE_REGION=asia-east1-b
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
