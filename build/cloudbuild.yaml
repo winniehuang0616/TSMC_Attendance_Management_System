@@ -1,9 +1,17 @@
-substitutions:
-  _TAG: "deploy-v$(date +%Y%m%d-%H%M%S)"
-
 steps:
-  # 登入 GKE
+  # Step 0: 產生部署 TAG 並寫入 /workspace/tag.env
   - name: 'gcr.io/cloud-builders/gcloud'
+    id: set-tag
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        TAG=deploy-v$(date +%Y%m%d-%H%M%S)
+        echo "TAG=$TAG" | tee /workspace/tag.env
+
+  # Step 1: 登入 GKE
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: gke-login
     entrypoint: bash
     args:
       - -c
@@ -12,47 +20,77 @@ steps:
           --region=asia-east1 \
           --project=$PROJECT_ID
 
-  # Build & push backend image
+  # Step 2: Build backend image
   - name: 'gcr.io/cloud-builders/docker'
     dir: 'backend'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/tsmc-backend:${_TAG}', '.']
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/tsmc-backend:${_TAG}']
-
-  # Build & push frontend image
-  - name: 'gcr.io/cloud-builders/docker'
-    dir: 'frontend'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/tsmc-frontend:${_TAG}', '.']
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/tsmc-frontend:${_TAG}']
-
-  # 替換 YAML 中的 image tag
-  - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: bash
     args:
       - -c
       - |
-        sed -i "s|gcr.io/.*/tsmc-backend:.*|gcr.io/$PROJECT_ID/tsmc-backend:${_TAG}|g" backend/k8s/backend/backend-deployment.yaml
-        sed -i "s|gcr.io/.*/tsmc-frontend:.*|gcr.io/$PROJECT_ID/tsmc-frontend:${_TAG}|g" frontend/k8s/frontend/frontend-deployment.yaml
+        source /workspace/tag.env
+        docker build -t gcr.io/$PROJECT_ID/tsmc-backend:$TAG .
 
-  # Apply K8s manifests
+  # Step 3: Push backend image
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        source /workspace/tag.env
+        docker push gcr.io/$PROJECT_ID/tsmc-backend:$TAG
+
+  # Step 4: Build frontend image
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: 'frontend'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        source /workspace/tag.env
+        docker build -t gcr.io/$PROJECT_ID/tsmc-frontend:$TAG .
+
+  # Step 5: Push frontend image
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        source /workspace/tag.env
+        docker push gcr.io/$PROJECT_ID/tsmc-frontend:$TAG
+
+  # Step 6: 替換 deployment YAML 中的 image tag
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: sed-replace
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        source /workspace/tag.env
+        sed -i "s|gcr.io/.*/tsmc-backend:.*|gcr.io/$PROJECT_ID/tsmc-backend:$TAG|g" backend/k8s/backend/backend-deployment.yaml
+        sed -i "s|gcr.io/.*/tsmc-frontend:.*|gcr.io/$PROJECT_ID/tsmc-frontend:$TAG|g" frontend/k8s/frontend/frontend-deployment.yaml
+
+  # Step 7: Apply manifests
   - name: 'gcr.io/cloud-builders/kubectl'
+    id: kubectl-apply-backend
     args: ['apply', '-f', 'backend/k8s']
     env:
       - CLOUDSDK_COMPUTE_REGION=asia-east1
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
+
   - name: 'gcr.io/cloud-builders/kubectl'
+    id: kubectl-apply-frontend
     args: ['apply', '-f', 'frontend/k8s']
     env:
       - CLOUDSDK_COMPUTE_REGION=asia-east1
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
 
-  # Rollout restart (保險，確保 Pod 重啟)
+  # Step 8: Rollout restart（保險）
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['rollout', 'restart', 'deployment/tsmc-backend']
     env:
       - CLOUDSDK_COMPUTE_REGION=asia-east1
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
+
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['rollout', 'restart', 'deployment/tsmc-frontend']
     env:
@@ -60,8 +98,9 @@ steps:
       - CLOUDSDK_CONTAINER_CLUSTER=tsmc
 
 images:
-  - gcr.io/$PROJECT_ID/tsmc-backend:${_TAG}
-  - gcr.io/$PROJECT_ID/tsmc-frontend:${_TAG}
+  - gcr.io/$PROJECT_ID/tsmc-backend
+  - gcr.io/$PROJECT_ID/tsmc-frontend
 
+timeout: 1200s
 options:
   logging: CLOUD_LOGGING_ONLY
