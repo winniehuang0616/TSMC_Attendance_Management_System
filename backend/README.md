@@ -44,3 +44,23 @@ port: 3306
 1. download mysql-client
 2.  `mysql -h 34.81.245.163 -P 3306 -u backend_user -p`
 3. password: StrongPassword123!
+
+### Add Prometheus Monitoring (for `/metrics` endpoint)
+
+To enable Prometheus metrics export at `/metrics`, follow these steps:
+
+1. Install the package (already included in `requirements.txt`):
+
+2. In `main.py`, **add the following lines at the bottom (after routers are registered)**:
+
+```python
+from prometheus_fastapi_instrumentator import Instrumentator
+
+instrumentator = Instrumentator().instrument(app)
+instrumentator.expose(app, endpoint="/metrics")
+```
+3. Start the server:
+```
+python -m uvicorn main:app --reload
+```
+4. Visit http://localhost:8000/metrics to confirm Prometheus metrics are being served.
