@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
       - name: backend
-        image: gcr.io/tsmc-459812/tsmc-backend:REPLACE_ME
+        image: gcr.io/tsmc-459812/tsmc-backend:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8000
         envFrom:
