@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,16 +39,10 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/context/authContext";
 import { cn } from "@/lib/utils";
 import type { Agent } from "@/models/detail";
 import type { LeaveRecord } from "@/models/leave";
-
-// 透過 api 取得代理人清單
-const agentData: Agent[] = [
-  { id: 1, name: "111-王小明" },
-  { id: 2, name: "112-陳美惠" },
-  { id: 3, name: "EMP003" },
-];
 
 interface EditCardProps {
   detailData: LeaveRecord;
@@ -73,8 +67,43 @@ const FormSchema = z.object({
   file: z.any().optional(),
 });
 
+interface AgentResponse {
+  id: string;
+  name: string;
+}
+
 export function EditCard({ detailData, onDeleted }: EditCardProps) {
+  const { userId } = useAuth();
+  const [agentData, setAgentData] = useState<AgentResponse[]>([]);
   const { toast } = useToast();
+
+  // 加入 useEffect 來獲取代理人數據
+  useEffect(() => {
+    const fetchAgentData = async () => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/user/agent/${userId}`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setAgentData(data);
+        } else {
+          throw new Error("Failed to fetch agent data");
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "載入代理人失敗",
+          description: "請重新整理頁面",
+        });
+      }
+    };
+
+    if (userId) {
+      fetchAgentData();
+    }
+  }, [userId, toast]);
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     typeof detailData.attachment === "string" && detailData.attachment !== "--"
       ? detailData.attachment
@@ -349,9 +378,9 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
                                 {agentData.map((person) => (
                                   <SelectItem
                                     key={person.id}
-                                    value={person.name}
+                                    value={`${person.id}-${person.name}`}
                                   >
-                                    {person.name}
+                                    {`${person.id}-${person.name}`}
                                   </SelectItem>
                                 ))}
                               </>
