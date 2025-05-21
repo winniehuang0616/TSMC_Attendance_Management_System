@@ -143,7 +143,7 @@ def get_leave_by_leaveid(leave_id: str) -> dict:
             FROM leave_info li
             LEFT JOIN employee_info a ON li.agent_id = a.employee_id
             LEFT JOIN employee_info r ON li.reviewer_id = r.employee_id
-            LEFT JOIN employee_info e ON li.employee_id = er.employee_id
+            LEFT JOIN employee_info e ON li.employee_id = e.employee_id
             WHERE li.leave_id = %s
         """
         cursor.execute(sql, (leave_id,))
