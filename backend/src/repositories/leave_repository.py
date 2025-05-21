@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from repositories.db_connection import get_db_connection
 from typing import List, Dict
 from logging_config import setup_logger
@@ -13,6 +13,50 @@ REVERSE_TYPE_MAP = {v: k for k, v in TYPE_MAP.items()}
 STATUS_MAP = {0: 'pending', 1: 'approved', 2: 'rejected'}
 REVERSE_STATUS_MAP = {v: k for k, v in STATUS_MAP.items()}
 
+WORK_START_TIME = time(8, 0, 0)
+WORK_END_TIME = time(16, 0, 0)
+
+def calculate_chargeable_leave_hours(leave_start_dt: datetime, leave_end_dt: datetime) -> float:
+    """
+    計算指定請假區間內，每日工作時段 (8 AM - 4 PM) 的總請假時數。
+
+    Args:
+        leave_start_dt: 請假開始時間 (datetime object)
+        leave_end_dt: 請假結束時間 (datetime object)
+
+    Returns:
+        float: 應扣除的總請假時數。如果輸入無效則返回 0.0。
+    """
+    if not isinstance(leave_start_dt, datetime) or not isinstance(leave_end_dt, datetime):
+        # 由調用方決定如何記錄此類型的錯誤
+        return 0.0
+
+    if leave_start_dt >= leave_end_dt:
+        # 由調用方決定如何記錄此類型的警告/錯誤
+        return 0.0
+
+    total_chargeable_hours = 0.0
+    current_date = leave_start_dt.date()
+
+    while current_date <= leave_end_dt.date():
+        # 當天的工作開始與結束時間
+        day_work_start = datetime.combine(current_date, WORK_START_TIME)
+        day_work_end = datetime.combine(current_date, WORK_END_TIME)
+
+        # 計算請假區間與當天工作時段的交集
+        effective_leave_start_on_day = max(leave_start_dt, datetime.combine(current_date, time.min))
+        effective_leave_end_on_day = min(leave_end_dt, datetime.combine(current_date, time.max))
+        
+        overlap_start = max(effective_leave_start_on_day, day_work_start)
+        overlap_end = min(effective_leave_end_on_day, day_work_end)
+
+        if overlap_start < overlap_end:
+            duration_on_day = (overlap_end - overlap_start).total_seconds() / 3600.0
+            total_chargeable_hours += duration_on_day
+        
+        current_date += timedelta(days=1)
+            
+    return total_chargeable_hours
 
 def get_allocated_leaves(employee_id):
     logger.info('[get_allocated_leaves] 執行開始')
@@ -44,39 +88,56 @@ def get_allocated_leaves(employee_id):
         conn.close()
 
 def get_used_leaves(employee_id):
-    logger.info('[get_used_leaves] 執行開始')
+    logger.info(f'[get_used_leaves] 執行開始 - 員工ID: {employee_id}')
     conn, cursor = get_db_connection()
     try:
-        
         current_year = str(datetime.now().year)
         sql = """
-            SELECT leave_type, SUM(TIMESTAMPDIFF(HOUR, start_time, end_time)) AS used_hours
+            SELECT leave_type, start_time, end_time
             FROM leave_info
             WHERE employee_id = %s
             AND YEAR(start_time) = %s
-            AND status in (0,1)
-            GROUP BY leave_type
+            AND status IN (0, 1)
         """
         cursor.execute(sql, (employee_id, current_year))
         rows = cursor.fetchall()
-        used = {name: 0 for name in TYPE_MAP}
-        print("[DEBUG] get_used_leaves rows:", rows)  # ⭐ 加這行 debug
+        
+        used_hours_by_type = {name: 0.0 for name in TYPE_MAP}
+        
+        print(f"[DEBUG] get_used_leaves - 員工ID {employee_id} 的原始請假記錄 ({current_year}年): {rows}")
+
         for row in rows:
             leave_type_id = row['leave_type']
-            hrs = row['used_hours']
+            start_time_db = row['start_time']
+            end_time_db = row['end_time']
+
+            if not isinstance(start_time_db, datetime) or not isinstance(end_time_db, datetime):
+                logger.error(f"[get_used_leaves] 員工ID {employee_id} 的記錄 {row} 包含無效的日期時間格式。將跳過此記錄。")
+                continue 
+
+            chargeable_hrs = calculate_chargeable_leave_hours(start_time_db, end_time_db)
+            
             leave_type_name = REVERSE_TYPE_MAP.get(leave_type_id)
             if leave_type_name:
-                used[leave_type_name] = float(hrs or 0)
-        logger.info(f"[get_used_leaves] 成功 : 獲取員工 {employee_id} 的使用假別總時數")
+                used_hours_by_type[leave_type_name] += chargeable_hrs
+            
+        logger.info(f"[get_used_leaves] 成功 : 獲取員工 {employee_id} ({current_year}年) 的使用假別總時數 (已考慮工作時段)")
         return {
             "employee_id": employee_id,
-            "used_hours": used
+            "used_hours": used_hours_by_type
         }
     except Exception as e:
-        logger.error(f"[get_used_leaves] 發生錯誤 : {e}")
+        logger.error(f"[get_used_leaves] 員工ID {employee_id} 處理時發生錯誤 : {e}", exc_info=True)
+        return {
+            "employee_id": employee_id,
+            "used_hours": {name: 0.0 for name in TYPE_MAP},
+            "error": str(e)
+        }
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 
 def get_leaves_by_employee(employee_id: str) -> list[dict]:
