@@ -131,7 +131,10 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       let attachment = "";
       if (data.file instanceof File) {
         attachment = await fileToBase64(data.file);
-      } else if (typeof detailData.attachment === "string" && detailData.attachment !== "--") {
+      } else if (
+        typeof detailData.attachment === "string" &&
+        detailData.attachment !== "--"
+      ) {
         attachment = detailData.attachment;
       }
 
@@ -145,8 +148,8 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       };
 
       const response = await axios.put(
-        `http://localhost:8000/api/leaves/${leaveId}`, 
-        payload
+        `http://localhost:8000/api/leaves/${leaveId}`,
+        payload,
       );
 
       toast({
@@ -155,16 +158,15 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       });
       console.log("更新成功:", response);
       onDeleted();
-
     } catch (error) {
       // Improved error handling
       let errorMessage = "更新請假資料時出現錯誤";
-      
+
       if (axios.isAxiosError(error)) {
-        if (error.code === 'ERR_NETWORK') {
+        if (error.code === "ERR_NETWORK") {
           errorMessage = "無法連接到伺服器，請確認伺服器是否正在運行";
         } else if (error.response) {
-          errorMessage = `伺服器錯誤 (${error.response.status}): ${error.response.data?.message || '未知錯誤'}`;
+          errorMessage = `伺服器錯誤 (${error.response.status}): ${error.response.data?.message || "未知錯誤"}`;
         }
       }
 
