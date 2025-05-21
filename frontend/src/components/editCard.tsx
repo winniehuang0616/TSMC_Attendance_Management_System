@@ -39,8 +39,8 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { useAuth } from "@/context/authContext";
 import { API_ENDPOINTS } from "@/config/api";
+import { useAuth } from "@/context/authContext";
 import { cn } from "@/lib/utils";
 import type { LeaveRecord } from "@/models/leave";
 
@@ -176,10 +176,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         agentId: data.agent,
       };
 
-      const response = await axios.put(
-        API_ENDPOINTS.LEAVES(leaveId),
-        payload,
-      );
+      const response = await axios.put(API_ENDPOINTS.LEAVES(leaveId), payload);
 
       toast({
         title: "請假表單內容已更新",
