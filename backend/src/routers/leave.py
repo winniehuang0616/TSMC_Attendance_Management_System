@@ -20,7 +20,10 @@ def create_leave(employeeId: str, req: LeaveCreateRequest):
     """
     建立新的請假單，並回傳該筆詳細資料
     """
-    return LeaveService.create_leave(employeeId, req)
+    try:
+        return LeaveService.create_leave(employeeId, req)
+    except HTTPException as http_exc:
+        raise http_exc
     # 如果服務層只回傳 leaveId，你可以在此向服務再請求詳細資料：
     # full = LeaveService.create_leave(leave_id, req)  
     # return full
