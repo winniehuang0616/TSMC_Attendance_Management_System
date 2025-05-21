@@ -91,13 +91,17 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       type: detailData.type,
       agent: detailData.agent,
       reason: detailData.reason,
-      file: detailData.attachment,
+      file: undefined, // Initialize as undefined instead of detailData.attachment
     },
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
+      if (!(file instanceof Blob)) {
+        resolve(""); // Return empty string if no valid file
+        return;
+      }
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result as string);
@@ -106,53 +110,71 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
   };
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    if (data.start > data.end) {
-      toast({
-        title: "時間錯誤",
-        description: "結束時間必須在開始時間之後",
-      });
-      return;
-    }
-    const leaveId = detailData.id;
-    // 調整時間，並且將其轉換為 UTC
-    const startDate = new Date(data.start);
-    const endDate = new Date(data.end);
-    const localOffset = startDate.getTimezoneOffset();
-    startDate.setMinutes(startDate.getMinutes() - localOffset);
-    endDate.setMinutes(endDate.getMinutes() - localOffset);
-    const utcStartDate = startDate.toISOString();
-    const utcEndDate = endDate.toISOString();
-    // 將檔案轉換為 base64
-    let attachment = "";
-    if (data.file) {
-      attachment = await fileToBase64(data.file);
-    }
+    try {
+      if (data.start > data.end) {
+        toast({
+          title: "時間錯誤",
+          description: "結束時間必須在開始時間之後",
+        });
+        return;
+      }
+      const leaveId = detailData.id;
+      // 調整時間，並且將其轉換為 UTC
+      const startDate = new Date(data.start);
+      const endDate = new Date(data.end);
+      const localOffset = startDate.getTimezoneOffset();
+      startDate.setMinutes(startDate.getMinutes() - localOffset);
+      endDate.setMinutes(endDate.getMinutes() - localOffset);
+      const utcStartDate = startDate.toISOString();
+      const utcEndDate = endDate.toISOString();
+      // 將檔案轉換為 base64
+      let attachment = "";
+      if (data.file instanceof File) {
+        attachment = await fileToBase64(data.file);
+      } else if (typeof detailData.attachment === "string" && detailData.attachment !== "--") {
+        attachment = detailData.attachment;
+      }
 
-    const payload = {
-      leaveType: data.type,
-      startDate: utcStartDate,
-      endDate: utcEndDate,
-      reason: data.reason,
-      attachmentBase64: attachment,
-      agentId: data.agent,
-    };
-    axios
-      .put(`http://localhost:8000/api/leaves/${leaveId}`, payload)
-      .then((response) => {
-        toast({
-          title: "請假表單內容已更新",
-          description: "請假資料更新成功！",
-        });
-        console.log("更新成功:", response);
-        onDeleted();
-      })
-      .catch((error) => {
-        toast({
-          title: "更新失敗",
-          description: "更新請假資料時出現錯誤。",
-        });
-        console.error("更新失敗:", error);
+      const payload = {
+        leaveType: data.type,
+        startDate: utcStartDate,
+        endDate: utcEndDate,
+        reason: data.reason,
+        attachmentBase64: attachment,
+        agentId: data.agent,
+      };
+
+      const response = await axios.put(
+        `http://localhost:8000/api/leaves/${leaveId}`, 
+        payload
+      );
+
+      toast({
+        title: "請假表單內容已更新",
+        description: "請假資料更新成功！",
       });
+      console.log("更新成功:", response);
+      onDeleted();
+
+    } catch (error) {
+      // Improved error handling
+      let errorMessage = "更新請假資料時出現錯誤";
+      
+      if (axios.isAxiosError(error)) {
+        if (error.code === 'ERR_NETWORK') {
+          errorMessage = "無法連接到伺服器，請確認伺服器是否正在運行";
+        } else if (error.response) {
+          errorMessage = `伺服器錯誤 (${error.response.status}): ${error.response.data?.message || '未知錯誤'}`;
+        }
+      }
+
+      toast({
+        title: "更新失敗",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      console.error("更新失敗:", error);
+    }
   };
 
   const handleDelete = async () => {
@@ -418,9 +440,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
               <DialogFooter className="sm:justify-start">
                 <div className="flex gap-4">
-                  <DialogClose asChild>
-                    <Button type="submit">更新</Button>
-                  </DialogClose>
+                  <Button type="submit">更新</Button>
                   <DialogClose asChild>
                     <Button
                       type="button"
