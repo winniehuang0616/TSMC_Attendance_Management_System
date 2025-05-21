@@ -49,7 +49,8 @@ def get_used_leaves(employee_id):
             SELECT leave_type, SUM(TIMESTAMPDIFF(HOUR, start_time, end_time)) AS used_hours
             FROM leave_info
             WHERE employee_id = %s
-              AND YEAR(start_time) = %s
+            AND YEAR(start_time) = %s
+            AND status in (1, 2)
             GROUP BY leave_type
         """
         cursor.execute(sql, (employee_id, current_year))
@@ -236,10 +237,12 @@ def create_leave_form(data):
         sql_select = """
             SELECT
                 li.leave_id, li.employee_id, li.status,
+                ei.name AS employeeName,
                 li.leave_type, li.start_time, li.end_time,
                 li.reason, li.attachment_base64,
                 li.agent_id, li.reviewer_id, li.comment, li.create_time
             FROM leave_info li
+            JOIN employee_info ei ON li.employee_id = ei.employee_id
             WHERE li.leave_id = %s
         """
         cursor.execute(sql_select, (lid,))
@@ -251,6 +254,7 @@ def create_leave_form(data):
         return {
             "leaveId":            row["leave_id"],
             "employeeId":         row["employee_id"],
+            "employeeName":       row["employeeName"],
             "status":             STATUS_MAP.get(row["status"], "pending"),
             "leaveType":          REVERSE_TYPE_MAP.get(row["leave_type"], ""),
             "startDate":          row["start_time"],
