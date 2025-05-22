@@ -43,7 +43,9 @@ export const useLeaveRecords = (employeeId: string | null) => {
             agentId: item.agentId,
             agentName: item.agentName,
             reason: item.reason ?? "",
-            attachment: item.attachedFileBase64 ? "已上傳附件" : "--",
+            attachment: item.attachedFileBase64
+              ? `data:image/jpeg;base64,${item.attachedFileBase64}`
+              : undefined,
             description: item.comment ?? "",
             status: item.status,
           }),

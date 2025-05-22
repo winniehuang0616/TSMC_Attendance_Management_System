@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Paperclip } from "lucide-react";
 
 import { useApprovalRecords } from "@/components/hooks/fetchApprovalRecords";
 import { useDepartmentRecords } from "@/components/hooks/fetchDepartmentRecord";
@@ -69,7 +69,6 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
 
   const { records, fetchLeaveRecords: refetchNormalRecords } =
     useLeaveRecords(userId);
-
   const { records: approvalRecords, fetchApprovalRecords } =
     useApprovalRecords(userId);
 
@@ -268,39 +267,79 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                 </TableCell>
               </TableRow>
             ) : (
-              (hasSearched ? filteredRecords : currentRecords).map((record) => (
-                <TableRow
-                  key={record.id}
-                  className={`${type != TableType.personal && "h-[40px]"}`}
-                >
-                  {type == TableType.approval && (
-                    <TableCell>{record.name}</TableCell>
-                  )}
-                  <TableCell>{leaveTypeLabel[record.type]}</TableCell>
-                  <TableCell>
-                    {format(record.startDate, "yyyy/MM/dd")}
-                  </TableCell>
-                  <TableCell>{format(record.endDate, "yyyy/MM/dd")}</TableCell>
-                  <TableCell>{record.agentName}</TableCell>
-                  <TableCell>{record.reason}</TableCell>
-                  <TableCell>{record.attachment || "--"}</TableCell>
-                  <TableCell className={statusColor[record.status]}>
-                    {statusLabel[record.status]}
-                  </TableCell>
+              (hasSearched ? filteredRecords : currentRecords).map(
+                (record, index) => {
+                  console.log(
+                    `record[${index}].attachment:`,
+                    record.attachment,
+                  ); // ← 加這行
 
-                  {type != TableType.manager && (
-                    <TableCell>
-                      {statusLabel[record.status] === "審核中" &&
-                      type == TableType.personal ? (
-                        <EditCard detailData={record} onDeleted={refetch} />
-                      ) : (
-                        // HERE ! 根據 TableType 傳入不同資料和 refetch function
-                        <DetailCard detailData={record} onDeleted={refetch} />
+                  return (
+                    <TableRow
+                      key={record.id}
+                      className={`${type != TableType.personal && "h-[40px]"}`}
+                    >
+                      {type == TableType.approval && (
+                        <TableCell>{record.name}</TableCell>
                       )}
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))
+                      <TableCell>{leaveTypeLabel[record.type]}</TableCell>
+                      <TableCell>
+                        {format(record.startDate, "yyyy/MM/dd")}
+                      </TableCell>
+                      <TableCell>
+                        {format(record.endDate, "yyyy/MM/dd")}
+                      </TableCell>
+                      <TableCell>{record.agentName}</TableCell>
+                      <TableCell>{record.reason}</TableCell>
+                      <TableCell>
+                        {record.attachment ? (
+                          <button
+                            onClick={() => {
+                              const win = window.open();
+                              if (win) {
+                                win.document.write(`
+                  <html>
+                    <head><title>附件</title></head>
+                    <body style="margin:50px">
+                      <img src="${record.attachment}" style="width:100%;height:100%;object-fit:contain;" />
+                    </body>
+                  </html>
+                `);
+                                win.document.close();
+                              }
+                            }}
+                          >
+                            <Paperclip
+                              size={36}
+                              strokeWidth={2}
+                              color="gray"
+                              className="mt-1 rounded-full p-2 hover:bg-zinc-100"
+                            />
+                          </button>
+                        ) : (
+                          "--"
+                        )}
+                      </TableCell>
+                      <TableCell className={statusColor[record.status]}>
+                        {statusLabel[record.status]}
+                      </TableCell>
+                      {type != TableType.manager && (
+                        <TableCell>
+                          {statusLabel[record.status] === "審核中" &&
+                          type == TableType.personal ? (
+                            <EditCard detailData={record} onDeleted={refetch} />
+                          ) : (
+                            <DetailCard
+                              detailData={record}
+                              onDeleted={refetch}
+                            />
+                          )}
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  );
+                },
+              )
             )}
           </TableBody>
         </Table>

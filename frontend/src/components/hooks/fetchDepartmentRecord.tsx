@@ -27,7 +27,9 @@ export function useDepartmentRecords(userId: string | null) {
         agentId: r.agentId,
         agentName: r.agentName,
         reason: r.reason,
-        attachment: r.attachedFileBase64,
+        attachment: r.attachedFileBase64
+          ? `data:image/jpeg;base64,${r.attachedFileBase64}`
+          : undefined,
         status: r.status,
       }));
       setRecords(formatted);

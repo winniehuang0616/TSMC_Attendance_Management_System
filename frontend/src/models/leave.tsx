@@ -15,7 +15,7 @@ export type LeaveRecord = {
   agentId: string;
   agentName: string;
   reason: string;
-  attachment: string;
+  attachment?: string;
   description?: string;
   status: LeaveStatus;
 };

@@ -81,9 +81,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
   useEffect(() => {
     const fetchAgentData = async () => {
       try {
-        const response = await fetch(
-          API_ENDPOINTS.USER_AGENT(userId),
-        );
+        const response = await fetch(API_ENDPOINTS.USER_AGENT(userId));
         if (response.ok) {
           const data = await response.json();
           setAgentData(data);
@@ -109,7 +107,6 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       ? detailData.attachment
       : null,
   );
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -120,23 +117,11 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       type: detailData.type,
       agent: detailData.agentId + "-" + detailData.agentName,
       reason: detailData.reason,
-      file: undefined, // Initialize as undefined instead of detailData.attachment
+      file: undefined,
     },
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      if (!(file instanceof Blob)) {
-        resolve(""); // Return empty string if no valid file
-        return;
-      }
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-  };
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
@@ -156,15 +141,17 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       endDate.setMinutes(endDate.getMinutes() - localOffset);
       const utcStartDate = startDate.toISOString();
       const utcEndDate = endDate.toISOString();
-      // 將檔案轉換為 base64
-      let attachment = "";
-      if (data.file instanceof File) {
-        attachment = await fileToBase64(data.file);
-      } else if (
-        typeof detailData.attachment === "string" &&
-        detailData.attachment !== "--"
-      ) {
-        attachment = detailData.attachment;
+      // 轉換為 base64
+      let attachedFileBase64 = "";
+      if (data.file) {
+        const reader = new FileReader();
+        attachedFileBase64 = await new Promise((resolve) => {
+          reader.onloadend = () => {
+            const base64String = reader.result as string;
+            resolve(base64String.split(",")[1]);
+          };
+          reader.readAsDataURL(data.file);
+        });
       }
 
       const payload = {
@@ -172,7 +159,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         startDate: utcStartDate,
         endDate: utcEndDate,
         reason: data.reason,
-        attachmentBase64: attachment,
+        attachmentBase64: attachedFileBase64,
         agentId: data.agent.split("-")[0],
       };
 
@@ -413,7 +400,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
-                      附件（可上傳 .jpg/.png/.pdf）
+                      附件（可上傳 .jpg/.png）
                       <div
                         onClick={() => fileInputRef.current?.click()}
                         className="cursor-pointer items-center rounded-md bg-white px-2 py-1 hover:bg-zinc-100"

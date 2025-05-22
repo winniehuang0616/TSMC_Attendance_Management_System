@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, setHours } from "date-fns";
-import { CalendarIcon, UploadCloudIcon } from "lucide-react";
+import { CalendarIcon, UploadCloudIcon, XIcon } from "lucide-react";
 import { z } from "zod";
 
 import { useToast } from "@/components/hooks/use-toast";
@@ -101,6 +101,8 @@ export function ApplyForm() {
     }
   }, [userId, toast]);
 
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -116,7 +118,6 @@ export function ApplyForm() {
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState("");
 
   function resetForm() {
     form.reset({
@@ -127,7 +128,6 @@ export function ApplyForm() {
       reason: "",
       file: undefined,
     });
-    setFileName("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -136,7 +136,6 @@ export function ApplyForm() {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       let attachedFileBase64 = "";
-
       if (data.file) {
         const reader = new FileReader();
         attachedFileBase64 = await new Promise((resolve) => {
@@ -373,27 +372,49 @@ export function ApplyForm() {
             name="file"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>附件（可上傳 .jpg/.png/.pdf）</FormLabel>
+                <FormLabel className="flex items-center gap-2">
+                  附件（可上傳 .jpg/.png/.pdf）
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="cursor-pointer items-center rounded-md bg-white px-2 py-1 hover:bg-zinc-100"
+                  >
+                    <UploadCloudIcon className="h-5 w-5 text-zinc-600" />
+                  </div>
+                  <XIcon
+                    className="h-4 w-4 cursor-pointer text-zinc-500 hover:text-red-500"
+                    onClick={(e) => {
+                      e.stopPropagation(); // 防止觸發 file input
+                      field.onChange(undefined);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                      setPreviewUrl(null);
+                    }}
+                  />
+                </FormLabel>
                 <FormControl>
                   <div>
-                    <label
-                      htmlFor="file-upload"
-                      className="flex h-10 w-full cursor-pointer items-center rounded-md border border-zinc-200 bg-white px-3"
-                    >
-                      <UploadCloudIcon className="mr-2 h-6 w-6" />
-                      <p className="text-sm">{fileName || "點此上傳檔案"}</p>
-                    </label>
+                    {/* 縮圖顯示 */}
+                    {previewUrl && (
+                      <div className="mt-2">
+                        <img
+                          src={previewUrl}
+                          alt="附件預覽"
+                          className="max-h-[100px] rounded-md shadow"
+                        />
+                      </div>
+                    )}
+
+                    {/* 隱藏的 file input */}
                     <input
                       ref={fileInputRef}
                       id="file-upload"
                       type="file"
-                      accept=".png,.jpg,.jpeg,.pdf"
+                      accept=".png,.jpg,.jpeg"
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
                           field.onChange(file);
-                          setFileName(file.name);
+                          setPreviewUrl(URL.createObjectURL(file));
                         }
                       }}
                     />
@@ -411,7 +432,7 @@ export function ApplyForm() {
               variant="outline"
               onClick={() => {
                 form.reset();
-                setFileName("");
+                setPreviewUrl(null);
               }}
             >
               取消
