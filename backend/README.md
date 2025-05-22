@@ -65,4 +65,4 @@ python -m uvicorn main:app --reload
 ```
 4. Visit http://localhost:8000/metrics to confirm Prometheus metrics are being served.
 
-test
+
