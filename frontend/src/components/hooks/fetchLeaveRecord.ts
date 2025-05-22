@@ -14,6 +14,7 @@ export interface RawLeaveRecord {
   startDate: string;
   endDate: string;
   agentId: string;
+  agentName: string;
   reason?: string;
   attachedFileBase64?: string;
   comment?: string;
@@ -39,7 +40,8 @@ export const useLeaveRecords = (employeeId: string | null) => {
             startTime: new Date(item.startDate).getHours(),
             endDate: new Date(item.endDate),
             endTime: new Date(item.endDate).getHours(),
-            agent: item.agentId,
+            agentId: item.agentId,
+            agentName: item.agentName,
             reason: item.reason ?? "",
             attachment: item.attachedFileBase64 ? "已上傳附件" : "--",
             description: item.comment ?? "",

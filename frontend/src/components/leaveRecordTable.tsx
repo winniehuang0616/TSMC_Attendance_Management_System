@@ -281,7 +281,7 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                     {format(record.startDate, "yyyy/MM/dd")}
                   </TableCell>
                   <TableCell>{format(record.endDate, "yyyy/MM/dd")}</TableCell>
-                  <TableCell>{record.agent}</TableCell>
+                  <TableCell>{record.agentName}</TableCell>
                   <TableCell>{record.reason}</TableCell>
                   <TableCell>{record.attachment || "--"}</TableCell>
                   <TableCell className={statusColor[record.status]}>

@@ -82,7 +82,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
     const fetchAgentData = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/user/agent/${userId}`,
+          API_ENDPOINTS.USER_AGENT(userId),
         );
         if (response.ok) {
           const data = await response.json();
@@ -118,7 +118,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       startHour: detailData.startTime,
       endHour: detailData.endTime,
       type: detailData.type,
-      agent: detailData.agent,
+      agent: detailData.agentId + "-" + detailData.agentName,
       reason: detailData.reason,
       file: undefined, // Initialize as undefined instead of detailData.attachment
     },
@@ -173,7 +173,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         endDate: utcEndDate,
         reason: data.reason,
         attachmentBase64: attachment,
-        agentId: data.agent,
+        agentId: data.agent.split("-")[0],
       };
 
       const response = await axios.put(API_ENDPOINTS.LEAVES(leaveId), payload);

@@ -12,7 +12,8 @@ export type LeaveRecord = {
   endDate: Date;
   startTime: number;
   endTime: number;
-  agent: string;
+  agentId: string;
+  agentName: string;
   reason: string;
   attachment: string;
   description?: string;

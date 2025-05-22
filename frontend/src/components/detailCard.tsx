@@ -191,7 +191,7 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
             </Label>
             <Input
               id="agent"
-              defaultValue={detailData.agent}
+              defaultValue={detailData.agentId + "-" + detailData.agentName}
               className="h-[30px]"
               disabled
             />
