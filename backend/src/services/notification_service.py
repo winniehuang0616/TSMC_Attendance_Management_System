@@ -27,6 +27,7 @@ class NotificationService:
                 server.starttls()
                 server.login(smtp_user, smtp_pass)
                 server.send_message(msg)
+                print("Successfully sent an email!")
         except Exception as e:
             # 失敗時僅記錄，不抛出讓上層停掉
             print(f"[WARN] Failed to send email to {to}: {e}")
