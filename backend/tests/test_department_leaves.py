@@ -27,3 +27,9 @@ def test_non_manager_id():
     response = client.get("/api/leaves/manager/EMP002/department-leaves")
     assert response.status_code < 500
 
+def test_leave_count():
+    response = client.get("/api/leaves/manager/EMP001/department-leaves")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) > 0
+
