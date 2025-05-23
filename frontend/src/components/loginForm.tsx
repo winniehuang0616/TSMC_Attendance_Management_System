@@ -45,13 +45,6 @@ const LoginForm: React.FC = () => {
         );
         const userInfo = await userInfoResponse.json();
 
-        // Store employeeId in localStorage if remember password is checked
-        if (rememberPassword) {
-          localStorage.setItem("rememberedEmployeeId", employeeId);
-        } else {
-          localStorage.removeItem("rememberedEmployeeId");
-        }
-
         // Login context update with user info
         login(userInfo.userId, userInfo.userName, userInfo.role);
 

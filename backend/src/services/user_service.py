@@ -25,7 +25,6 @@ class UserService:
         user = get_employee_by_id(employeeId)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        
         remain = UserService.get_used_hours(employeeId)
         
         # 撈請假紀錄

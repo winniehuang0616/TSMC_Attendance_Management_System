@@ -67,7 +67,6 @@ def get_allocated_leaves(employee_id):
         sql = "SELECT leave_type, allocated_hours FROM leave_balance WHERE employee_id = %s AND year = %s"
         cursor.execute(sql, (employee_id, year))
         rows = cursor.fetchall()
-        print("[DEBUG] get_allocated_leaves rows:", rows)  # ⭐ 加這行 debug
 
         allocated = {k: 0 for k in TYPE_MAP}
         for row in rows:
@@ -103,8 +102,6 @@ def get_used_leaves(employee_id):
         rows = cursor.fetchall()
         
         used_hours_by_type = {name: 0.0 for name in TYPE_MAP}
-        
-        print(f"[DEBUG] get_used_leaves - 員工ID {employee_id} 的原始請假記錄 ({current_year}年): {rows}")
 
         for row in rows:
             leave_type_id = row['leave_type']
@@ -163,7 +160,6 @@ def get_leaves_by_employee(employee_id: str) -> list[dict]:
             WHERE li.employee_id = %s
         """
         cursor.execute(sql, (employee_id,))
-        print(employee_id)
         rows = cursor.fetchall()  # list of dicts
         results: list[dict] = []
         for row in rows:
@@ -262,7 +258,6 @@ def get_attendance_by_employee(employee_id: str) -> list[dict]:
             WHERE li.employee_id = %s
         """
         cursor.execute(sql, (employee_id,))
-        print(employee_id)
         rows = cursor.fetchall()  # list of dicts
 
         results: list[dict] = []
@@ -368,7 +363,6 @@ def update_leave_form(leave_id, data):
         lt = TYPE_MAP[data['leaveType']]
         new_st = datetime.strptime(data['startDate'], "%Y-%m-%d-%H-%M")
         new_et = datetime.strptime(data['endDate'], "%Y-%m-%d-%H-%M")
-        print("new_st:", data["attachmentBase64"])
         sql = (
             "UPDATE leave_info SET leave_type = %s, start_time = %s, end_time = %s, "
             "reason = %s, attachment_base64 = %s, agent_id = %s WHERE leave_id = %s"
