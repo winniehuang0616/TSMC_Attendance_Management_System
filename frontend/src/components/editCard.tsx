@@ -278,6 +278,27 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
                                       if (date) field.onChange(date);
                                     }}
                                     initialFocus
+                                    disabled={
+                                      fieldKey === "end"
+                                        ? (date) => {
+                                            const startDate =
+                                              form.getValues("start");
+                                            const start = new Date(
+                                              startDate.getFullYear(),
+                                              startDate.getMonth(),
+                                              startDate.getDate(),
+                                            );
+                                            const current = new Date(
+                                              date.getFullYear(),
+                                              date.getMonth(),
+                                              date.getDate(),
+                                            );
+                                            return start
+                                              ? current < start
+                                              : false;
+                                          }
+                                        : undefined
+                                    }
                                   />
                                 </PopoverContent>
                               </Popover>
@@ -287,7 +308,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
                                 name={hourKey}
                                 render={({ field: hourField }) => (
                                   <FormItem>
-                                    <FormLabel>小時</FormLabel>
+                                    <FormLabel>幾點</FormLabel>
                                     <FormControl>
                                       <Input
                                         type="number"

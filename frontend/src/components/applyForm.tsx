@@ -247,9 +247,17 @@ export function ApplyForm() {
                                     ? (date) => {
                                         const startDate =
                                           form.getValues("start");
-                                        return startDate
-                                          ? date < startDate
-                                          : false;
+                                        const start = new Date(
+                                          startDate.getFullYear(),
+                                          startDate.getMonth(),
+                                          startDate.getDate(),
+                                        );
+                                        const current = new Date(
+                                          date.getFullYear(),
+                                          date.getMonth(),
+                                          date.getDate(),
+                                        );
+                                        return start ? current < start : false;
                                       }
                                     : undefined
                                 }
@@ -263,7 +271,7 @@ export function ApplyForm() {
                             name={hourKey}
                             render={({ field: hourField }) => (
                               <FormItem>
-                                <FormLabel>小時</FormLabel>
+                                <FormLabel>幾點</FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
