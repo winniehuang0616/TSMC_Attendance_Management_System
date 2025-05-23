@@ -85,7 +85,7 @@ function EmployeePage() {
       <h1 className="mb-1 text-[1.35rem] font-bold text-blue">
         {" "}
         剩餘假期天數查詢{" "}
-        <span className="text-[0.9rem] font-normal text-gray-500 ml-1">
+        <span className="text-gray-500 ml-1 text-[0.9rem] font-normal">
           (已使用/總小時數)
         </span>
       </h1>
