@@ -91,8 +91,8 @@ function PersonalPage() {
   const formatRemainingTime = (remainingHours: number) => {
     if (remainingHours < 0) remainingHours = 0;
 
-    const days = Math.floor(remainingHours / 24);
-    const hours = remainingHours % 24;
+    const days = Math.floor(remainingHours / 8);
+    const hours = remainingHours % 8;
 
     return `剩餘 ${days} 天 ${hours} 小時`;
   };
@@ -100,7 +100,10 @@ function PersonalPage() {
   return (
     <main>
       <h1 className="mb-1 text-[1.35rem] font-bold text-blue">
-        剩餘假期天數查詢
+        剩餘假期天數查詢{" "}
+        <span className="text-[0.9rem] font-normal text-gray-500 ml-1">
+          (已使用/總小時數)
+        </span>
       </h1>
       <div className="flex gap-4">
         {isLoading ? (
