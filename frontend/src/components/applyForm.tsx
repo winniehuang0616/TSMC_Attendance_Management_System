@@ -182,7 +182,20 @@ export function ApplyForm() {
         });
         resetForm();
       } else {
-        throw new Error("請求失敗");
+        const errorData = await response.json();
+        if (errorData.detail === "Leave duration exceeds quota") {
+          toast({
+            variant: "destructive",
+            title: "請假失敗",
+            description: "請假時數超過可用額度",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "送出失敗",
+            description: "請稍後再試",
+          });
+        }
       }
     } catch (error) {
       toast({
