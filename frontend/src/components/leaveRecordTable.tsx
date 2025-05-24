@@ -89,7 +89,7 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
 
   const handleSearch = () => {
     const filtered = currentRecords.filter((record) => {
-      const isNameMatch = !name || record.employeeId === name;
+      const isNameMatch = !name || record.name === name;
       const isStartDateMatch = !startDate || record.startDate >= startDate;
       const isEndDateMatch = !endDate || record.endDate <= endDate;
       const isTypeMatch =
@@ -130,9 +130,9 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
         <div className="flex items-center gap-2">
           {type == TableType.manager && (
             <div className="flex flex-col">
-              <p className="ml-2 font-medium">員工</p>
+              <p className="font-medium">員工</p>
               <Select onValueChange={setName} value={name}>
-                <SelectTrigger className="w-[115px] px-3 font-light">
+                <SelectTrigger className="min-w-[80px] gap-1 px-3 font-light">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -244,7 +244,7 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
         <Table>
           <TableHeader>
             <TableRow>
-              {type == TableType.approval && <TableHead>姓名</TableHead>}
+              {type != TableType.personal && <TableHead>姓名</TableHead>}
               <TableHead>假別</TableHead>
               <TableHead>開始</TableHead>
               <TableHead>結束</TableHead>
@@ -272,7 +272,7 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                     key={record.id}
                     className={`${type != TableType.personal && "h-[40px]"}`}
                   >
-                    {type == TableType.approval && (
+                    {type != TableType.personal && (
                       <TableCell>{record.name}</TableCell>
                     )}
                     <TableCell>{leaveTypeLabel[record.type]}</TableCell>

@@ -7,7 +7,7 @@ export interface UsedLeave {
 
 export interface EmployeeApiData {
   userId: string;
-  name: string;
+  userName: string;
   email: string;
   phone: string;
   role: string;
