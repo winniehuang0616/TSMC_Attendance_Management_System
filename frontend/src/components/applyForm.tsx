@@ -264,7 +264,7 @@ export function ApplyForm() {
                             name={hourKey}
                             render={({ field: hourField }) => (
                               <FormItem>
-                                <FormLabel>小時</FormLabel>
+                                <FormLabel>幾時</FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
