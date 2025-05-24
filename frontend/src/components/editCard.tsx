@@ -107,6 +107,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       ? detailData.attachment
       : null,
   );
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -125,22 +126,25 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
-      if (data.start > data.end) {
+      const leaveId = detailData.id;
+
+      // 轉換為台灣時間
+      const startDateWithHour = setHours(
+        new Date(data.start),
+        Number(data.startHour),
+      );
+      const endDateWithHour = setHours(
+        new Date(data.end),
+        Number(data.endHour),
+      );
+      if (startDateWithHour > endDateWithHour) {
         toast({
           title: "時間錯誤",
           description: "結束時間必須在開始時間之後",
         });
         return;
       }
-      const leaveId = detailData.id;
-      // 調整時間，並且將其轉換為 UTC
-      const startDate = new Date(data.start);
-      const endDate = new Date(data.end);
-      const localOffset = startDate.getTimezoneOffset();
-      startDate.setMinutes(startDate.getMinutes() - localOffset);
-      endDate.setMinutes(endDate.getMinutes() - localOffset);
-      const utcStartDate = startDate.toISOString();
-      const utcEndDate = endDate.toISOString();
+
       // 轉換為 base64
       let attachedFileBase64 = "";
       if (data.file) {
@@ -156,8 +160,8 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
       const payload = {
         leaveType: data.type,
-        startDate: utcStartDate,
-        endDate: utcEndDate,
+        startDate: startDateWithHour,
+        endDate: endDateWithHour,
         reason: data.reason,
         attachmentBase64: attachedFileBase64,
         agentId: data.agent.split("-")[0],

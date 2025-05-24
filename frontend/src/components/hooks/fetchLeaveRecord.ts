@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
 
 import axios from "axios";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
 import { API_ENDPOINTS } from "@/config/api";
 import type { LeaveStatus } from "@/models/enum/leaveStatus";
 import type { LeaveRecord } from "@/models/leave";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export interface RawLeaveRecord {
   leaveId: string;
@@ -37,9 +43,9 @@ export const useLeaveRecords = (employeeId: string | null) => {
             name: item.employeeName,
             type: item.leaveType,
             startDate: new Date(item.startDate),
-            startTime: new Date(item.startDate).getHours(),
+            startTime: dayjs.utc(item.startDate).tz("Asia/Taipei").hour(),
             endDate: new Date(item.endDate),
-            endTime: new Date(item.endDate).getHours(),
+            endTime: dayjs.utc(item.endDate).tz("Asia/Taipei").hour(),
             agentId: item.agentId,
             agentName: item.agentName,
             reason: item.reason ?? "",
