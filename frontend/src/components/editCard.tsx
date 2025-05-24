@@ -102,6 +102,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
     }
   }, [userId, toast]);
 
+  // 縮圖用
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     typeof detailData.attachment === "string" && detailData.attachment !== "--"
       ? detailData.attachment
@@ -147,7 +148,8 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
       // 轉換為 base64
       let attachedFileBase64 = "";
-      if (data.file) {
+      console.log(data.file);
+      if (data.file instanceof File) {
         const reader = new FileReader();
         attachedFileBase64 = await new Promise((resolve) => {
           reader.onloadend = () => {
@@ -156,6 +158,8 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
           };
           reader.readAsDataURL(data.file);
         });
+      } else if (previewUrl) {
+        attachedFileBase64 = previewUrl.split(",")[1];
       }
 
       const payload = {
