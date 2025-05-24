@@ -10,7 +10,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({
   isLoggedIn,
-  userName = "Praful",
+  userName,
   userAvatar = "https://github.com/shadcn.png",
 }) => {
   return (

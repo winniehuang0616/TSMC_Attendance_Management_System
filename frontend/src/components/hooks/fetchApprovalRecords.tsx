@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 
 import axios from "axios";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
 import { API_BASE_URL } from "@/config/api";
 
 import type { RawLeaveRecord } from "./fetchLeaveRecord";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export function useApprovalRecords(userId: string | null) {
   const [records, setRecords] = useState([]);
@@ -25,10 +31,15 @@ export function useApprovalRecords(userId: string | null) {
         name: r.employeeName, // TODO: 需要從其他地方獲取員工姓名
         type: r.leaveType,
         startDate: new Date(r.startDate),
+        startTime: dayjs.utc(r.startDate).tz("Asia/Taipei").hour(),
         endDate: new Date(r.endDate),
-        agent: r.agentId,
+        endTime: dayjs.utc(r.endDate).tz("Asia/Taipei").hour(),
+        agentId: r.agentId,
+        agentName: r.agentName,
         reason: r.reason,
-        attachment: r.attachedFileBase64,
+        attachment: r.attachedFileBase64
+          ? `data:image/jpeg;base64,${r.attachedFileBase64}`
+          : undefined,
         status: r.status,
       }));
       setRecords(formatted);

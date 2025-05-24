@@ -14,7 +14,6 @@ def get_userinfo(employeeId: str):
     """
     try:
         user = UserService.get_userinfo(employeeId)
-        print(user)
         used_leave = UserService.get_used_hours(employeeId)
     except HTTPException:
         # Service 已拋出 404 或其他 HTTPException
@@ -22,6 +21,7 @@ def get_userinfo(employeeId: str):
     # 將 dict 轉成 Pydantic model
     return UserInfoResponse(
         userId     = user["employee_id"],
+        userName     = user["name"],
         email        = user.get("email"),
         phone        = user.get("phone"),
         role         = user["role"],

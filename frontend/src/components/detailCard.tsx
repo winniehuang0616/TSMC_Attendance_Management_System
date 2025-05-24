@@ -191,7 +191,7 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
             </Label>
             <Input
               id="agent"
-              defaultValue={detailData.agent}
+              defaultValue={detailData.agentId + "-" + detailData.agentName}
               className="h-[30px]"
               disabled
             />
@@ -207,17 +207,20 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
               disabled
             />
           </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="file" className="w-1/3">
-              附件
-            </Label>
-            <Input
-              id="file"
-              defaultValue={detailData.attachment}
-              className="h-[30px]"
-              disabled
-            />
-          </div>
+          {detailData.attachment && (
+            <div className="flex items-center gap-2">
+              <Label htmlFor="file" className="mt-2 w-1/3 self-start">
+                附件
+              </Label>
+              <div className="mt-2 w-full">
+                <img
+                  src={detailData.attachment}
+                  alt="附件預覽"
+                  className="max-h-[100px] rounded-md shadow"
+                />
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <Label
               htmlFor="result"

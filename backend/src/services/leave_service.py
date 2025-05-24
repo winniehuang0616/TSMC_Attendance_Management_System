@@ -131,16 +131,7 @@ class LeaveService:
         if not employee_ids:
             return [] # 如果沒有其他同事，返回空列表
         leaves_employee = get_leaves_by_employee_ids(employee_ids)
-        
-        ##取得其他主管資料
-        manager_ids = get_all_magnager_ids(manager_id)
-        if not employee_ids:
-            return [] 
-        leaves_manager = get_leaves_by_employee_ids(manager_ids)
-
-        ##合併請假資料
-        all_leaves = leaves_employee + leaves_manager
-        return all_leaves
+        return leaves_employee
   
     @staticmethod
     def get_used_and_allocated_leaves (employeeId: str) -> Dict[str, Optional[int]]:
