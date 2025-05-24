@@ -140,7 +140,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
-      if (data.start > data.end) {
+      if (data.start >= data.end) {
         toast({
           title: "時間錯誤",
           description: "結束時間必須在開始時間之後",
