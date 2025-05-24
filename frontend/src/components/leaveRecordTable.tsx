@@ -247,6 +247,7 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
           <TableHeader>
             <TableRow>
               {type == TableType.approval && <TableHead>姓名</TableHead>}
+              {type == TableType.manager && <TableHead>姓名</TableHead>}
               <TableHead>假別</TableHead>
               <TableHead>開始</TableHead>
               <TableHead>結束</TableHead>
@@ -274,6 +275,9 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                   className={`${type != TableType.personal && "h-[40px]"}`}
                 >
                   {type == TableType.approval && (
+                    <TableCell>{record.name}</TableCell>
+                  )}
+                  {type == TableType.manager && (
                     <TableCell>{record.name}</TableCell>
                   )}
                   <TableCell>{leaveTypeLabel[record.type]}</TableCell>
