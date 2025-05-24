@@ -10,7 +10,7 @@ class RoleEnum(str, Enum):
 
 class UserInfoResponse(BaseModel):
     userId: str
-    userName: str
+    userName: Optional[str] = None
     email: Optional[str]
     phone: Optional[str]
     role: RoleEnum
