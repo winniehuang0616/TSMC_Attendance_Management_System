@@ -101,8 +101,8 @@ class LeaveService:
         })
         if not success:
             raise HTTPException(status_code=404, detail="Leave not found")
-        '''
-        # 取申請人的 email ( 這裡會 500，先註解掉，乾抓到是這個問題花了一個小時 qqqqq...... )
+    
+        # 取申請人的 email 
         emp = get_employee_by_id(success["employee_id"])
         to_addr = emp.get("email") if emp else None
         if to_addr:
@@ -110,11 +110,11 @@ class LeaveService:
             body    = req.comment or (
                 f"Your leave request was {req.status.value} by {req.reviewerId}."
             )
-            NotificationService.send_email(to_addr, subject, body)
+        NotificationService.send_email(to_addr, subject, body)
 
         # 回傳更新結果給 Controller（或直接回傳 updated）
-        
-        '''
+
+    
         return success
     
     @staticmethod

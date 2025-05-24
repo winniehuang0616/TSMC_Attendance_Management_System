@@ -276,6 +276,7 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                       <TableCell>{record.name}</TableCell>
                     )}
                     <TableCell>{leaveTypeLabel[record.type]}</TableCell>
+
                     <TableCell>
                       {format(record.startDate, "yyyy/MM/dd")}
                     </TableCell>

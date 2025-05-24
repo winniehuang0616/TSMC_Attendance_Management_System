@@ -3,12 +3,16 @@ import os, smtplib
 from email.message import EmailMessage
 from fastapi import HTTPException
 from dotenv import load_dotenv
+import logging
 
 load_dotenv() 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class NotificationService:
     @staticmethod
     def send_email(to: str, subject: str, body: str) -> None:
+        print("[DEBUG] tyring to send an email")
         smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
         smtp_port   = int(os.getenv("SMTP_PORT", 587))
         smtp_user   = os.getenv("SMTP_USER")
@@ -27,6 +31,7 @@ class NotificationService:
                 server.starttls()
                 server.login(smtp_user, smtp_pass)
                 server.send_message(msg)
+                print("[DEBUG] Successfully sent an email!")
         except Exception as e:
             # 失敗時僅記錄，不抛出讓上層停掉
-            print(f"[WARN] Failed to send email to {to}: {e}")
+            logger.warning(f"[WARN] Failed to send email to {to}: {e}")
