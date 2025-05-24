@@ -81,9 +81,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
   useEffect(() => {
     const fetchAgentData = async () => {
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/user/agent/${userId}`,
-        );
+        const response = await fetch(API_ENDPOINTS.USER_AGENT(userId));
         if (response.ok) {
           const data = await response.json();
           setAgentData(data);
@@ -104,6 +102,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
     }
   }, [userId, toast]);
 
+  // 縮圖用
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     typeof detailData.attachment === "string" && detailData.attachment !== "--"
       ? detailData.attachment
@@ -118,62 +117,58 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
       startHour: detailData.startTime,
       endHour: detailData.endTime,
       type: detailData.type,
-      agent: detailData.agent,
+      agent: detailData.agentId + "-" + detailData.agentName,
       reason: detailData.reason,
-      file: undefined, // Initialize as undefined instead of detailData.attachment
+      file: undefined,
     },
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      if (!(file instanceof Blob)) {
-        resolve(""); // Return empty string if no valid file
-        return;
-      }
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-  };
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
-      if (data.start >= data.end) {
+      const leaveId = detailData.id;
+
+      // 轉換為台灣時間
+      const startDateWithHour = setHours(
+        new Date(data.start),
+        Number(data.startHour),
+      );
+      const endDateWithHour = setHours(
+        new Date(data.end),
+        Number(data.endHour),
+      );
+      if (startDateWithHour > endDateWithHour) {
         toast({
           title: "時間錯誤",
           description: "結束時間必須在開始時間之後",
         });
         return;
       }
-      const leaveId = detailData.id;
-      // 調整時間，並且將其轉換為 UTC
-      const startDate = new Date(data.start);
-      const endDate = new Date(data.end);
-      const localOffset = startDate.getTimezoneOffset();
-      startDate.setMinutes(startDate.getMinutes() - localOffset);
-      endDate.setMinutes(endDate.getMinutes() - localOffset);
-      const utcStartDate = startDate.toISOString();
-      const utcEndDate = endDate.toISOString();
-      // 將檔案轉換為 base64
-      let attachment = "";
+
+      // 轉換為 base64
+      let attachedFileBase64 = "";
+      console.log(data.file);
       if (data.file instanceof File) {
-        attachment = await fileToBase64(data.file);
-      } else if (
-        typeof detailData.attachment === "string" &&
-        detailData.attachment !== "--"
-      ) {
-        attachment = detailData.attachment;
+        const reader = new FileReader();
+        attachedFileBase64 = await new Promise((resolve) => {
+          reader.onloadend = () => {
+            const base64String = reader.result as string;
+            resolve(base64String.split(",")[1]);
+          };
+          reader.readAsDataURL(data.file);
+        });
+      } else if (previewUrl) {
+        attachedFileBase64 = previewUrl.split(",")[1];
       }
 
       const payload = {
         leaveType: data.type,
-        startDate: utcStartDate,
-        endDate: utcEndDate,
+        startDate: startDateWithHour,
+        endDate: endDateWithHour,
         reason: data.reason,
-        attachmentBase64: attachment,
-        agentId: data.agent,
+        attachmentBase64: attachedFileBase64,
+        agentId: data.agent.split("-")[0],
       };
 
       const response = await axios.put(API_ENDPOINTS.LEAVES(leaveId), payload);
@@ -291,6 +286,27 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
                                       if (date) field.onChange(date);
                                     }}
                                     initialFocus
+                                    disabled={
+                                      fieldKey === "end"
+                                        ? (date) => {
+                                            const startDate =
+                                              form.getValues("start");
+                                            const start = new Date(
+                                              startDate.getFullYear(),
+                                              startDate.getMonth(),
+                                              startDate.getDate(),
+                                            );
+                                            const current = new Date(
+                                              date.getFullYear(),
+                                              date.getMonth(),
+                                              date.getDate(),
+                                            );
+                                            return start
+                                              ? current < start
+                                              : false;
+                                          }
+                                        : undefined
+                                    }
                                   />
                                 </PopoverContent>
                               </Popover>
@@ -300,7 +316,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
                                 name={hourKey}
                                 render={({ field: hourField }) => (
                                   <FormItem>
-                                    <FormLabel>小時</FormLabel>
+                                    <FormLabel>幾點</FormLabel>
                                     <FormControl>
                                       <Input
                                         type="number"
@@ -413,7 +429,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
-                      附件（可上傳 .jpg/.png/.pdf）
+                      附件（可上傳 .jpg/.png）
                       <div
                         onClick={() => fileInputRef.current?.click()}
                         className="cursor-pointer items-center rounded-md bg-white px-2 py-1 hover:bg-zinc-100"

@@ -25,7 +25,6 @@ class UserService:
         user = get_employee_by_id(employeeId)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        
         remain = UserService.get_used_hours(employeeId)
         
         # 撈請假紀錄
@@ -87,6 +86,7 @@ class UserService:
             leave_info = UserService.get_used_hours(id)
             employee_detail = UserInfoResponse(
                 userId=id,
+                userName=emp_info['name'],
                 email=emp_info["email"],
                 phone=emp_info["phone"],
                 role=emp_info["role"],  # 注意這個欄位需要符合 Enum

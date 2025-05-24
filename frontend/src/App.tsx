@@ -17,7 +17,7 @@ function App() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Header userName={userName || ""} isLoggedIn={isLoggedIn} />
+      <Header userName={userName} isLoggedIn={isLoggedIn} />
       <div className="flex flex-1">
         {isLoggedIn && (
           <div className="w-[18%]">

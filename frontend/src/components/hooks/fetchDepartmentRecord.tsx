@@ -24,9 +24,12 @@ export function useDepartmentRecords(userId: string | null) {
         type: r.leaveType,
         startDate: new Date(r.startDate),
         endDate: new Date(r.endDate),
-        agent: r.agentId,
+        agentId: r.agentId,
+        agentName: r.agentName,
         reason: r.reason,
-        attachment: r.attachedFileBase64,
+        attachment: r.attachedFileBase64
+          ? `data:image/jpeg;base64,${r.attachedFileBase64}`
+          : undefined,
         status: r.status,
       }));
       setRecords(formatted);

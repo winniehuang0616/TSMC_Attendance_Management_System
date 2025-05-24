@@ -79,7 +79,7 @@ function EmployeePage() {
   }, [name]);
 
   const selectedEmployee = employeeData.find((e) => e.userId === name);
-
+  console.log(employeeData);
   return (
     <div>
       <h1 className="mb-1 text-[1.35rem] font-bold text-blue">
@@ -92,15 +92,15 @@ function EmployeePage() {
 
       <div className="flex gap-4 py-2">
         <div className="flex items-center gap-2 pl-2">
-          <p className="font-medium">員工</p>
+          <p className="w-[50px] font-medium">員工</p>
           <Select onValueChange={setName} value={name}>
-            <SelectTrigger className="w-[115px] bg-transparent px-2 font-semibold">
+            <SelectTrigger className="min-w-[115px] bg-transparent px-2 font-semibold">
               <SelectValue placeholder="選擇員工" />
             </SelectTrigger>
             <SelectContent>
               {employeeData.map((person) => (
                 <SelectItem key={person.userId} value={person.userId}>
-                  {person.userId}
+                  {person.userId}-{person.userName}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -137,7 +137,8 @@ function EmployeePage() {
         type={TableType.manager}
         employeeData={employeeData.map((e) => ({
           id: parseInt(e.userId.replace(/\D/g, ""), 10),
-          name: e.userId,
+          employeeId: e.userId,
+          name: e.userName,
         }))}
       />
     </div>
