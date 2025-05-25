@@ -76,6 +76,8 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
   const { userId } = useAuth();
   const [agentData, setAgentData] = useState<AgentResponse[]>([]);
   const { toast } = useToast();
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // 加入 useEffect 來獲取代理人數據
   useEffect(() => {
@@ -127,6 +129,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
+      setEditLoading(true);
       const leaveId = detailData.id;
 
       // 轉換為台灣時間
@@ -171,13 +174,12 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         agentId: data.agent.split("-")[0],
       };
 
-      const response = await axios.put(API_ENDPOINTS.LEAVES(leaveId), payload);
+      await axios.put(API_ENDPOINTS.LEAVES(leaveId), payload);
 
       toast({
         title: "請假表單內容已更新",
         description: "請假資料更新成功！",
       });
-      console.log("更新成功:", response);
       onDeleted();
     } catch (error) {
       // Improved error handling
@@ -195,12 +197,14 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         title: "更新失敗",
         description: errorMessage,
         variant: "destructive",
-      });
-      console.error("更新失敗:", error);
+      })
+    } finally {
+      setEditLoading(false);
     }
   };
 
   const handleDelete = async () => {
+    setDeleteLoading(true);
     try {
       await axios.delete(API_ENDPOINTS.LEAVES(detailData.id));
       onDeleted();
@@ -214,6 +218,8 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         title: "撤回失敗",
         description: `撤回請假單時發生錯誤`,
       });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -484,14 +490,17 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
               <DialogFooter className="sm:justify-start">
                 <div className="flex gap-4">
-                  <Button type="submit">更新</Button>
+                  <Button type="submit" disabled={editLoading}>
+                    { editLoading ? "更新中" : "更新"}
+                  </Button>
                   <DialogClose asChild>
                     <Button
                       type="button"
                       variant="destructive"
+                      disabled={deleteLoading}
                       onClick={handleDelete}
                     >
-                      撤回
+                      { deleteLoading ? "撤回中" : "撤回"}
                     </Button>
                   </DialogClose>
                 </div>

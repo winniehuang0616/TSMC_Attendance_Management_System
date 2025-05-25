@@ -128,7 +128,7 @@ const LoginForm: React.FC = () => {
             className="w-[20%] bg-blue hover:bg-blue/90"
             disabled={isLoading}
           >
-            {isLoading ? "登入中..." : "登入"}
+            {isLoading ? "登入中" : "登入"}
           </Button>
 
           <div>

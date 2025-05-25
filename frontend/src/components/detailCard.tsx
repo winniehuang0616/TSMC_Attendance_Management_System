@@ -37,8 +37,11 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
   const [open, setOpen] = useState(false);
   const [checkedError, setCheckedError] = useState(false);
   const [descriptionError, setDescriptionError] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleDelete = async () => {
+    setDeleteLoading(true);
     try {
       if (detailData.startDate > new Date()) {
         await axios.delete(API_ENDPOINTS.LEAVES(detailData.id));
@@ -59,10 +62,13 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
         title: "撤回失敗",
         description: `撤回請假單時發生錯誤`,
       });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setSubmitLoading(true);
     // 錯誤呈現紅色字
     let hasError = false;
 
@@ -90,24 +96,26 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
     };
 
     // 透過 API 更新假單
-    axios
-      .put(API_ENDPOINTS.LEAVE_REVIEW(detailData.id), payload)
-      .then(() => {
-        setOpen(false);
-        onDeleted();
-        toast({
-          title: "已簽核假單",
-          description: "系統將寄信通知申請者",
-        });
-      })
-      .catch((error) => {
-        toast({
-          title: "送出簽核結果失敗",
-          description: "請稍後再試。",
-          variant: "destructive",
-        });
-        console.error("簽核失敗：", error);
+    try {
+      await axios.put(API_ENDPOINTS.LEAVE_REVIEW(detailData.id), payload);
+      setOpen(false);
+      onDeleted();
+      toast({
+        title: "已簽核假單",
+        description: "系統將寄信通知申請者",
       });
+
+    } catch (error) {
+      toast({
+        title: "送出簽核結果失敗",
+        description: "請稍後再試。",
+        variant: "destructive",
+      });
+      console.error("簽核失敗：", error);
+
+    } finally {
+      setSubmitLoading(false); // ✅ 結尾記得關掉 loading
+    }
   };
 
   return (
@@ -305,8 +313,9 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
                 type="button"
                 variant="destructive"
                 onClick={handleDelete}
+                disabled={deleteLoading}
               >
-                刪除
+                {deleteLoading ? "刪除中" : "刪除"}
               </Button>
             </DialogClose>
           )}
@@ -315,8 +324,9 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
               type="button"
               className="bg-blue hover:bg-blue/90"
               onClick={handleSubmit}
+              disabled={submitLoading}
             >
-              送出
+              {submitLoading ? "送出中" : "送出"}
             </Button>
           )}
         </DialogFooter>
