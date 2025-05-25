@@ -30,9 +30,9 @@ export function useApprovalRecords(userId: string | null) {
         employeeId: r.employeeId,
         name: r.employeeName, // TODO: 需要從其他地方獲取員工姓名
         type: r.leaveType,
-        startDate: new Date(r.startDate),
+        startDate: dayjs.utc(r.startDate).tz("Asia/Taipei").toDate(),
         startTime: dayjs.utc(r.startDate).tz("Asia/Taipei").hour(),
-        endDate: new Date(r.endDate),
+        endDate: dayjs.utc(r.endDate).tz("Asia/Taipei").toDate(),
         endTime: dayjs.utc(r.endDate).tz("Asia/Taipei").hour(),
         agentId: r.agentId,
         agentName: r.agentName,

@@ -85,8 +85,10 @@ function EmployeePage() {
       <h1 className="mb-1 text-[1.35rem] font-bold text-blue">
         {" "}
         單一員工各假別使用狀況總覽{" "}
-        <span className="text-gray-500 ml-1 text-[0.9rem] font-normal">
-          (已使用/總小時數)
+        <span className="ml-1 text-[0.9rem] font-semibold">
+          <span className="text-blue">( 已使用</span>
+          <span> </span>
+          <span className="text-black">/ 總小時數 )</span>
         </span>
       </h1>
 

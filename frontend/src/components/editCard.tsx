@@ -8,6 +8,7 @@ import { CalendarIcon, UploadCloudIcon, XIcon } from "lucide-react";
 import { PencilLine } from "lucide-react";
 import { z } from "zod";
 
+import { useLeaveSummary } from "@/components/hooks/fetchCard";
 import { useToast } from "@/components/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -47,6 +48,7 @@ import type { LeaveRecord } from "@/models/leave";
 interface EditCardProps {
   detailData: LeaveRecord;
   onDeleted: () => void;
+  onSuccess?: () => void;
 }
 
 const leaveTypeLabel: Record<string, string> = {
@@ -72,10 +74,13 @@ interface AgentResponse {
   name: string;
 }
 
-export function EditCard({ detailData, onDeleted }: EditCardProps) {
+export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
   const { userId } = useAuth();
   const [agentData, setAgentData] = useState<AgentResponse[]>([]);
+  const { fetchLeaveSummary } = useLeaveSummary(userId);
   const { toast } = useToast();
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // 加入 useEffect 來獲取代理人數據
   useEffect(() => {
@@ -127,6 +132,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
+      setEditLoading(true);
       const leaveId = detailData.id;
 
       // 轉換為台灣時間
@@ -171,14 +177,15 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         agentId: data.agent.split("-")[0],
       };
 
-      const response = await axios.put(API_ENDPOINTS.LEAVES(leaveId), payload);
+      await axios.put(API_ENDPOINTS.LEAVES(leaveId), payload);
 
       toast({
         title: "請假表單內容已更新",
         description: "請假資料更新成功！",
       });
-      console.log("更新成功:", response);
       onDeleted();
+      if (onSuccess) onSuccess();
+      fetchLeaveSummary();
     } catch (error) {
       // Improved error handling
       let errorMessage = "更新請假資料時出現錯誤";
@@ -196,14 +203,17 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         description: errorMessage,
         variant: "destructive",
       });
-      console.error("更新失敗:", error);
+    } finally {
+      setEditLoading(false);
     }
   };
 
   const handleDelete = async () => {
+    setDeleteLoading(true);
     try {
       await axios.delete(API_ENDPOINTS.LEAVES(detailData.id));
       onDeleted();
+      if (onSuccess) onSuccess();
       toast({
         title: "撤回假單",
         description: `已向主管發送撤回信件`,
@@ -214,6 +224,8 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         title: "撤回失敗",
         description: `撤回請假單時發生錯誤`,
       });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -320,8 +332,8 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
                                     <FormControl>
                                       <Input
                                         type="number"
-                                        min={0}
-                                        max={23}
+                                        min={8}
+                                        max={18}
                                         className="w-[60px]"
                                         {...hourField}
                                         onChange={(e) => {
@@ -484,14 +496,19 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
               <DialogFooter className="sm:justify-start">
                 <div className="flex gap-4">
-                  <Button type="submit">更新</Button>
+                  <DialogClose asChild>
+                    <Button type="submit" disabled={editLoading}>
+                      {editLoading ? "更新中" : "更新"}
+                    </Button>
+                  </DialogClose>
                   <DialogClose asChild>
                     <Button
                       type="button"
                       variant="destructive"
+                      disabled={deleteLoading}
                       onClick={handleDelete}
                     >
-                      撤回
+                      {deleteLoading ? "撤回中" : "撤回"}
                     </Button>
                   </DialogClose>
                 </div>

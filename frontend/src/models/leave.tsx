@@ -30,4 +30,5 @@ export type Filter = {
 export type Props = {
   type: TableType;
   employeeData?: Agent[];
+  onSubmit?: () => void;
 };
