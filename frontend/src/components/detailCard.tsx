@@ -29,9 +29,14 @@ const leaveTypeLabel: Record<string, string> = {
 interface DetailCardProps {
   detailData: LeaveRecord;
   onDeleted: () => void;
+  onSuccess?: () => void;
 }
 
-export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
+export function DetailCard({
+  detailData,
+  onDeleted,
+  onSuccess,
+}: DetailCardProps) {
   const [checked, setChecked] = useState<true | false | null>(null);
   const [description, setDescription] = useState(detailData.description || "");
   const [open, setOpen] = useState(false);
@@ -45,6 +50,7 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
     try {
       if (detailData.startDate > new Date()) {
         await axios.delete(API_ENDPOINTS.LEAVES(detailData.id));
+        if (onSuccess) onSuccess();
         onDeleted();
         toast({
           title: "撤回假單",
@@ -68,7 +74,6 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
   };
 
   const handleSubmit = async () => {
-    setSubmitLoading(true);
     // 錯誤呈現紅色字
     let hasError = false;
 
@@ -97,6 +102,7 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
 
     // 透過 API 更新假單
     try {
+      setSubmitLoading(true);
       await axios.put(API_ENDPOINTS.LEAVE_REVIEW(detailData.id), payload);
       setOpen(false);
       onDeleted();
@@ -104,7 +110,6 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
         title: "已簽核假單",
         description: "系統將寄信通知申請者",
       });
-
     } catch (error) {
       toast({
         title: "送出簽核結果失敗",
@@ -112,9 +117,8 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
         variant: "destructive",
       });
       console.error("簽核失敗：", error);
-
     } finally {
-      setSubmitLoading(false); // ✅ 結尾記得關掉 loading
+      setSubmitLoading(false);
     }
   };
 

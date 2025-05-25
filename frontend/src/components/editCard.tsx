@@ -8,6 +8,7 @@ import { CalendarIcon, UploadCloudIcon, XIcon } from "lucide-react";
 import { PencilLine } from "lucide-react";
 import { z } from "zod";
 
+import { useLeaveSummary } from "@/components/hooks/fetchCard";
 import { useToast } from "@/components/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -47,6 +48,7 @@ import type { LeaveRecord } from "@/models/leave";
 interface EditCardProps {
   detailData: LeaveRecord;
   onDeleted: () => void;
+  onSuccess?: () => void;
 }
 
 const leaveTypeLabel: Record<string, string> = {
@@ -72,9 +74,10 @@ interface AgentResponse {
   name: string;
 }
 
-export function EditCard({ detailData, onDeleted }: EditCardProps) {
+export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
   const { userId } = useAuth();
   const [agentData, setAgentData] = useState<AgentResponse[]>([]);
+  const { fetchLeaveSummary } = useLeaveSummary(userId);
   const { toast } = useToast();
   const [editLoading, setEditLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -181,6 +184,8 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         description: "請假資料更新成功！",
       });
       onDeleted();
+      if (onSuccess) onSuccess();
+      fetchLeaveSummary();
     } catch (error) {
       // Improved error handling
       let errorMessage = "更新請假資料時出現錯誤";
@@ -197,7 +202,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
         title: "更新失敗",
         description: errorMessage,
         variant: "destructive",
-      })
+      });
     } finally {
       setEditLoading(false);
     }
@@ -208,6 +213,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
     try {
       await axios.delete(API_ENDPOINTS.LEAVES(detailData.id));
       onDeleted();
+      if (onSuccess) onSuccess();
       toast({
         title: "撤回假單",
         description: `已向主管發送撤回信件`,
@@ -490,9 +496,11 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
 
               <DialogFooter className="sm:justify-start">
                 <div className="flex gap-4">
-                  <Button type="submit" disabled={editLoading}>
-                    { editLoading ? "更新中" : "更新"}
-                  </Button>
+                  <DialogClose asChild>
+                    <Button type="submit" disabled={editLoading}>
+                      {editLoading ? "更新中" : "更新"}
+                    </Button>
+                  </DialogClose>
                   <DialogClose asChild>
                     <Button
                       type="button"
@@ -500,7 +508,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
                       disabled={deleteLoading}
                       onClick={handleDelete}
                     >
-                      { deleteLoading ? "撤回中" : "撤回"}
+                      {deleteLoading ? "撤回中" : "撤回"}
                     </Button>
                   </DialogClose>
                 </div>

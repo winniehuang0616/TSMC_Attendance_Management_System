@@ -48,6 +48,10 @@ interface AgentResponse {
   name: string;
 }
 
+type Props = {
+  onSuccess?: () => void;
+};
+
 const FormSchema = z
   .object({
     start: z.date(),
@@ -69,7 +73,7 @@ const FormSchema = z
     }
   });
 
-export function ApplyForm() {
+export function ApplyForm({ onSuccess }: Props) {
   const { toast } = useToast();
   const { userId } = useAuth(); // 從 AuthContext 獲取 employeeId
   const [agentData, setAgentData] = useState<AgentResponse[]>([]);
@@ -181,6 +185,7 @@ export function ApplyForm() {
           title: "請假表單已送出",
           description: "主管將會收到您的請假申請",
         });
+        if (onSuccess) onSuccess();
         resetForm();
       } else {
         const errorData = await response.json();
