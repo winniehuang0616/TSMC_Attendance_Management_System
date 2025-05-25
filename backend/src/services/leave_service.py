@@ -1,5 +1,6 @@
 # services/leave_service.py
 
+from datetime import time
 from fastapi import HTTPException
 from repositories.leave_repository import (
     get_leaves_by_employee,
@@ -9,7 +10,8 @@ from repositories.leave_repository import (
     get_leaves_by_employee_ids,
     get_allocated_leaves,
     get_used_leaves,
-    get_leave_by_leaveid
+    get_leave_by_leaveid,
+    calculate_chargeable_leave_hours
 )
 from schemas.leave import LeaveCreateRequest, LeaveUpdateRequest, ReviewRequest
 from services.notification_service import NotificationService
@@ -18,6 +20,9 @@ from typing import List, Dict, Optional
 
 TYPE_MAP = {'annual': 2, 'sick': 1, 'personal': 0, 'official': 3}
 REVERSE_TYPE_MAP = {v: k for k, v in TYPE_MAP.items()}
+
+WORK_START_TIME = time(8, 0, 0)
+WORK_END_TIME = time(16, 0, 0)
 
 class LeaveService:
     @staticmethod
@@ -41,9 +46,13 @@ class LeaveService:
         allocated_leaves = get_allocated_leaves(employeeId)
         quota = float(allocated_leaves['allocated_hours'][data["leaveType"]] - used_leaves['used_hours'][data['leaveType']])
 
-        start_time = req.startDate.timestamp()
-        end_time = req.endDate.timestamp()
-        duration = (end_time - start_time) / 3600 # convert seconds to hours
+        #turn start date and end date to datetime
+        start_time = req.startDate
+        start_time = start_time.replace(tzinfo=None)
+        end_time = req.endDate
+        end_time = end_time.replace(tzinfo=None)
+
+        duration = calculate_chargeable_leave_hours(start_time, end_time) # convert seconds to hours
 
         if quota <= 0:
             raise HTTPException(status_code=400, detail="Leave quota exceeded")
@@ -62,20 +71,26 @@ class LeaveService:
             "attachmentBase64": req.attachmentBase64, # 統一改為 attachmentBase64
             "agentId":          req.agentId
         }
+        original_leave = get_leave_by_leaveid(leaveId)
+        employeeId = original_leave["employeeId"]
+        original_start_time = original_leave["startDate"]
+        original_end_time = original_leave["endDate"]
+        original_duration = calculate_chargeable_leave_hours(original_start_time, original_end_time)
 
-        employeeId = get_leave_by_leaveid(leaveId)["employeeId"]
+        new_start_time = req.startDate.replace(tzinfo=None)
+        new_end_time = req.endDate.replace(tzinfo=None)
+        new_duration = calculate_chargeable_leave_hours(new_start_time, new_end_time) 
 
         used_leaves = get_used_leaves(employeeId)
         allocated_leaves = get_allocated_leaves(employeeId)
-        quota = float(allocated_leaves['allocated_hours'][data["leaveType"]] - used_leaves['used_hours'][data['leaveType']])
+        quota = float(allocated_leaves['allocated_hours'][data["leaveType"]] - used_leaves['used_hours'][data['leaveType']] + original_duration)
 
-        start_time = req.startDate.timestamp()
-        end_time = req.endDate.timestamp()
-        duration = (end_time - start_time) / 3600 # convert seconds to hours
+        print(new_duration)
+        print(quota)
 
         if quota <= 0:
             raise HTTPException(status_code=400, detail="Leave quota exceeded")
-        elif quota < duration:
+        elif quota < new_duration:
             raise HTTPException(status_code=400, detail="Leave duration exceeds quota")
 
         success = update_leave_form(leaveId, data)
