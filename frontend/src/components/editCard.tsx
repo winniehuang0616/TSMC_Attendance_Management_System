@@ -320,8 +320,8 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
                                     <FormControl>
                                       <Input
                                         type="number"
-                                        min={0}
-                                        max={23}
+                                        min={8}
+                                        max={18}
                                         className="w-[60px]"
                                         {...hourField}
                                         onChange={(e) => {
