@@ -101,8 +101,10 @@ function PersonalPage() {
     <main>
       <h1 className="mb-1 text-[1.35rem] font-bold text-blue">
         剩餘假期天數查詢{" "}
-        <span className="text-gray-500 ml-1 text-[0.9rem] font-normal">
-          (已使用/總小時數)
+        <span className="ml-1 text-[0.9rem] font-semibold">
+          <span className="text-blue">( 已使用</span>
+          <span> </span>
+          <span className="text-black">/ 總小時數 )</span>
         </span>
       </h1>
       <div className="flex gap-4">
