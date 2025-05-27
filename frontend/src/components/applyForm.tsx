@@ -269,7 +269,10 @@ export function ApplyForm({ onSuccess }: Props) {
                                     ? (date) => {
                                         const startDate =
                                           form.getValues("start");
-                                        if (!startDate || isNaN(new Date(startDate).getTime())) {
+                                        if (
+                                          !startDate ||
+                                          isNaN(new Date(startDate).getTime())
+                                        ) {
                                           return false;
                                         }
                                         const start = new Date(
