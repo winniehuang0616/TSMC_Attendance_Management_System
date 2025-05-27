@@ -220,7 +220,7 @@ export function EditCard({ detailData, onDeleted }: EditCardProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple">
+        <div data-testid="edit" className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple">
           <PencilLine size={24} strokeWidth={2} color="blue" />
         </div>
       </DialogTrigger>

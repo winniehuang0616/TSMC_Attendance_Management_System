@@ -116,6 +116,13 @@ export function DetailCard({ detailData, onDeleted }: DetailCardProps) {
         <div
           onClick={() => setOpen(true)}
           className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple"
+          data-testid={
+            detailData.status === "rejected"
+              ? `view-${detailData.id}`
+              : detailData.status === "approved"
+              ? `delete-${detailData.id}`
+              : `review-${detailData.id}`
+          }
         >
           {detailData.status === "rejected" ? (
             <Eye size={24} strokeWidth={2} color="#FF4170" />

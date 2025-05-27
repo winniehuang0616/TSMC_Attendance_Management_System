@@ -64,7 +64,7 @@ function Calendar({
           <ChevronLeft className={cn("h-4 w-4", className)} {...props} />
         ),
         IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn("h-4 w-4", className)} {...props} />
+          <ChevronRight className={cn("h-4 w-4", className)} aria-label="go to next month" {...props} />
         ),
       }}
       {...props}
