@@ -269,6 +269,9 @@ export function ApplyForm({ onSuccess }: Props) {
                                     ? (date) => {
                                         const startDate =
                                           form.getValues("start");
+                                        if (!startDate || isNaN(new Date(startDate).getTime())) {
+                                          return false;
+                                        }
                                         const start = new Date(
                                           startDate.getFullYear(),
                                           startDate.getMonth(),
@@ -298,7 +301,7 @@ export function ApplyForm({ onSuccess }: Props) {
                                   <Input
                                     type="number"
                                     min={8}
-                                    max={18}
+                                    max={16}
                                     className="w-[60px]"
                                     placeholder="時"
                                     {...hourField}

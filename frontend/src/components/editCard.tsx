@@ -333,7 +333,7 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
                                       <Input
                                         type="number"
                                         min={8}
-                                        max={18}
+                                        max={16}
                                         className="w-[60px]"
                                         {...hourField}
                                         onChange={(e) => {
