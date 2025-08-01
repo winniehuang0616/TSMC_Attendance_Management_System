@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime, time, timedelta
 from repositories.db_connection import get_db_connection
-from typing import List, Dict
+from typing import List
 from logging_config import setup_logger
+
 
 logger = setup_logger("leave_repository")
 
@@ -19,43 +20,52 @@ WORK_END_TIME = time(16, 0, 0)
 def calculate_chargeable_leave_hours(leave_start_dt: datetime, leave_end_dt: datetime) -> float:
     """
     計算指定請假區間內，每日工作時段 (8 AM - 4 PM) 的總請假時數。
-
+    
     Args:
         leave_start_dt: 請假開始時間 (datetime object)
         leave_end_dt: 請假結束時間 (datetime object)
-
+    
     Returns:
         float: 應扣除的總請假時數。如果輸入無效則返回 0.0。
     """
+    
     if not isinstance(leave_start_dt, datetime) or not isinstance(leave_end_dt, datetime):
         # 由調用方決定如何記錄此類型的錯誤
         return 0.0
-
-    if leave_start_dt >= leave_end_dt:
+    
+    timezone_offset = timedelta(hours=8)
+    adjusted_leave_start = leave_start_dt + timezone_offset
+    adjusted_leave_end = leave_end_dt + timezone_offset
+    
+    if adjusted_leave_start >= adjusted_leave_end:
         # 由調用方決定如何記錄此類型的警告/錯誤
         return 0.0
-
+    
+    # 假設這些常數已經定義
+    WORK_START_TIME = time(8, 0)   # 8:00 AM
+    WORK_END_TIME = time(16, 0)    # 4:00 PM
+    
     total_chargeable_hours = 0.0
-    current_date = leave_start_dt.date()
-
-    while current_date <= leave_end_dt.date():
+    current_date = adjusted_leave_start.date()
+    
+    while current_date <= adjusted_leave_end.date():
         # 當天的工作開始與結束時間
         day_work_start = datetime.combine(current_date, WORK_START_TIME)
         day_work_end = datetime.combine(current_date, WORK_END_TIME)
-
+        
         # 計算請假區間與當天工作時段的交集
-        effective_leave_start_on_day = max(leave_start_dt, datetime.combine(current_date, time.min))
-        effective_leave_end_on_day = min(leave_end_dt, datetime.combine(current_date, time.max))
+        effective_leave_start_on_day = max(adjusted_leave_start, datetime.combine(current_date, time.min))
+        effective_leave_end_on_day = min(adjusted_leave_end, datetime.combine(current_date, time.max))
         
         overlap_start = max(effective_leave_start_on_day, day_work_start)
         overlap_end = min(effective_leave_end_on_day, day_work_end)
-
+        
         if overlap_start < overlap_end:
             duration_on_day = (overlap_end - overlap_start).total_seconds() / 3600.0
             total_chargeable_hours += duration_on_day
         
         current_date += timedelta(days=1)
-            
+    
     return total_chargeable_hours
 
 def get_allocated_leaves(employee_id):

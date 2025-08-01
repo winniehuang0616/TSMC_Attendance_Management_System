@@ -21,7 +21,7 @@ export function LeaveBalanceCard({
 
         <div className="mb-1 mt-1 text-2xl font-bold text-blue">
           {used} <span className="text-black">/ {total}</span>{" "}
-          <span className="text-xs text-darkBlue">小時</span>
+          <span className="text-xs text-black">小時</span>
         </div>
         <p className="text-xs text-darkBlue">{remainingText}</p>
       </CardContent>

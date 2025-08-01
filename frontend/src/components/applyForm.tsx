@@ -48,6 +48,10 @@ interface AgentResponse {
   name: string;
 }
 
+type Props = {
+  onSuccess?: () => void;
+};
+
 const FormSchema = z
   .object({
     start: z.date(),
@@ -69,11 +73,11 @@ const FormSchema = z
     }
   });
 
-export function ApplyForm() {
+export function ApplyForm({ onSuccess }: Props) {
   const { toast } = useToast();
   const { userId } = useAuth(); // 從 AuthContext 獲取 employeeId
   const [agentData, setAgentData] = useState<AgentResponse[]>([]);
-
+  const [isLoading, setIsLoading] = useState(false);
   // Add this useEffect to fetch agent data
   useEffect(() => {
     const fetchAgentData = async () => {
@@ -134,6 +138,7 @@ export function ApplyForm() {
   }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    setIsLoading(true);
     try {
       let attachedFileBase64 = "";
       if (data.file) {
@@ -179,6 +184,7 @@ export function ApplyForm() {
           title: "請假表單已送出",
           description: "主管將會收到您的請假申請",
         });
+        if (onSuccess) onSuccess();
         resetForm();
       } else {
         const errorData = await response.json();
@@ -202,6 +208,8 @@ export function ApplyForm() {
         title: "送出失敗",
         description: "請稍後再試",
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -288,8 +296,8 @@ export function ApplyForm() {
                                 <FormControl>
                                   <Input
                                     type="number"
-                                    min={0}
-                                    max={23}
+                                    min={8}
+                                    max={16}
                                     className="w-[60px]"
                                     placeholder="時"
                                     {...hourField}
@@ -447,7 +455,9 @@ export function ApplyForm() {
           />
 
           <div className="flex gap-4">
-            <Button type="submit">送出</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "送出中" : "送出"}
+            </Button>
             <Button
               type="button"
               variant="outline"

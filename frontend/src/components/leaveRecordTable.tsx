@@ -55,7 +55,7 @@ const leaveTypeLabel: Record<string, string> = {
   official: "公假",
 };
 
-export function LeaveRecordTable({ type, employeeData }: Props) {
+export function LeaveRecordTable({ type, employeeData, onSubmit }: Props) {
   const [name, setName] = useState<string>("");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
@@ -321,9 +321,17 @@ export function LeaveRecordTable({ type, employeeData }: Props) {
                       <TableCell>
                         {statusLabel[record.status] === "審核中" &&
                         type == TableType.personal ? (
-                          <EditCard detailData={record} onDeleted={refetch} />
+                          <EditCard
+                            detailData={record}
+                            onDeleted={refetch}
+                            onSuccess={onSubmit}
+                          />
                         ) : (
-                          <DetailCard detailData={record} onDeleted={refetch} />
+                          <DetailCard
+                            detailData={record}
+                            onDeleted={refetch}
+                            onSuccess={onSubmit}
+                          />
                         )}
                       </TableCell>
                     )}

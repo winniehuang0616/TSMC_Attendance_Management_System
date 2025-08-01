@@ -3,7 +3,9 @@ import { useState, useEffect } from "react";
 import AuthContext, { UserRole } from "./authContext";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(() =>
+    sessionStorage.getItem("userId"),
+  );
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [role, setRole] = useState<UserRole | null>(null);
@@ -24,6 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     sessionStorage.setItem("userId", id);
     sessionStorage.setItem("userName", name);
     sessionStorage.setItem("role", userRole);
+    setUserId(id);
     setUserName(name);
     setRole(userRole);
     setIsLoggedIn(true);
