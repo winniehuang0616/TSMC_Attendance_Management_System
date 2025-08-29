@@ -1,43 +1,19 @@
 /// <reference types="cypress" />
-// ***********************************************
-// This example commands.ts shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-//
-// declare global {
-//   namespace Cypress {
-//     interface Chainable {
-//       login(email: string, password: string): Chainable<void>
-//       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
-//     }
-//   }
-// }
 
-Cypress.Commands.add("loginAs", (userId = "EMP001", userName = "王小明", role = "employee") => {
-  window.sessionStorage.setItem("userId", userId);
-  window.sessionStorage.setItem("userName", userName);
-  window.sessionStorage.setItem("role", role);
-});
+Cypress.Commands.add(
+  "loginAsManager",
+  (userId = "EMPManager", userName = "主管名稱", role = "manager") => {
+    window.sessionStorage.setItem("userId", userId);
+    window.sessionStorage.setItem("userName", userName);
+    window.sessionStorage.setItem("role", role);
+  },
+);
+
+Cypress.Commands.add(
+  "loginAsEmployee",
+  (userId = "EMPEmployee", userName = "員工名稱", role = "employee") => {
+    window.sessionStorage.setItem("userId", userId);
+    window.sessionStorage.setItem("userName", userName);
+    window.sessionStorage.setItem("role", role);
+  },
+);

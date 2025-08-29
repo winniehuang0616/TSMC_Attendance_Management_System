@@ -13,6 +13,7 @@ export function LeaveBalanceCard({
       className={cn(
         "flex h-[120px] max-w-[150px] flex-col justify-center rounded-2xl shadow-md",
       )}
+      data-testid={`${type}-card`}
     >
       <CardContent className="flex flex-col justify-center p-4">
         <CardTitle>

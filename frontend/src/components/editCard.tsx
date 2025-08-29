@@ -7,6 +7,7 @@ import { format, setHours } from "date-fns";
 import { CalendarIcon, UploadCloudIcon, XIcon } from "lucide-react";
 import { PencilLine } from "lucide-react";
 import { z } from "zod";
+
 import { useLeaveSummary } from "@/components/hooks/fetchCard";
 import { useToast } from "@/components/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -143,6 +144,7 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
         new Date(data.end),
         Number(data.endHour),
       );
+
       if (startDateWithHour > endDateWithHour) {
         toast({
           title: "時間錯誤",
@@ -153,7 +155,6 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
 
       // 轉換為 base64
       let attachedFileBase64 = "";
-      console.log(data.file);
       if (data.file instanceof File) {
         const reader = new FileReader();
         attachedFileBase64 = await new Promise((resolve) => {
@@ -182,18 +183,20 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
         title: "請假表單內容已更新",
         description: "請假資料更新成功！",
       });
+
       onDeleted();
       if (onSuccess) onSuccess();
       fetchLeaveSummary();
     } catch (error) {
-      // Improved error handling
       let errorMessage = "更新請假資料時出現錯誤";
 
-      if (axios.isAxiosError(error)) {
-        if (error.code === "ERR_NETWORK") {
-          errorMessage = "無法連接到伺服器，請確認伺服器是否正在運行";
-        } else if (error.response) {
-          errorMessage = `伺服器錯誤 (${error.response.status}): ${error.response.data?.message || "未知錯誤"}`;
+      if (axios.isAxiosError(error) && error.response) {
+        const message = error.response.data?.detail;
+
+        if (message === "Leave duration exceeds quota") {
+          errorMessage = "請假時數超過可用額度";
+        } else {
+          errorMessage = `伺服器錯誤 (${error.response.status}): ${message || "未知錯誤"}`;
         }
       }
 
@@ -225,13 +228,16 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
       });
     } finally {
       setDeleteLoading(false);
-    } 
+    }
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div data-testid="edit" className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple">
+        <div
+          data-testid="edit"
+          className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple"
+        >
           <PencilLine size={24} strokeWidth={2} color="blue" />
         </div>
       </DialogTrigger>
@@ -269,6 +275,7 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
                                         !field.value &&
                                           "text-muted-foreground text-gray",
                                       )}
+                                      data-testid={`${fieldKey}-date`} // start-date / end-date
                                     >
                                       {field.value ? (
                                         format(field.value, "yyyy/MM/dd")
@@ -291,6 +298,7 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
                                   align="start"
                                 >
                                   <Calendar
+                                    data-testid={`${fieldKey}-calendar`}
                                     mode="single"
                                     selected={field.value}
                                     onSelect={(date) => {
@@ -330,6 +338,7 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
                                     <FormLabel>幾點</FormLabel>
                                     <FormControl>
                                       <Input
+                                        data-testid={`${hourKey}`} // startHour / endHour
                                         type="number"
                                         min={8}
                                         max={16}
@@ -382,7 +391,7 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
                           value={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger data-testid={`${fieldKey}`}>
                               <SelectValue {...field} />
                             </SelectTrigger>
                           </FormControl>
@@ -426,7 +435,7 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
                   <FormItem>
                     <FormLabel>請假原因</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input data-testid="reason" {...field} />
                     </FormControl>
                     <FormMessage className="hidden" />
                   </FormItem>
@@ -473,6 +482,7 @@ export function EditCard({ detailData, onDeleted, onSuccess }: EditCardProps) {
 
                         {/* 隱藏的 file input */}
                         <input
+                          data-testid="file"
                           ref={fileInputRef}
                           id="file-upload"
                           type="file"

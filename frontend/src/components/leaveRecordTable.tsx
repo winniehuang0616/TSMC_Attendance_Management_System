@@ -194,7 +194,10 @@ export function LeaveRecordTable({ type, employeeData, onSubmit }: Props) {
           <div className="flex flex-col">
             <p className="ml-2 font-medium">假別</p>
             <Select onValueChange={setLeaveType} value={leaveType}>
-              <SelectTrigger data-testid="type-filter" className="w-[75px] px-3 font-light">
+              <SelectTrigger
+                data-testid="type-filter"
+                className="w-[75px] px-3 font-light"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -271,6 +274,7 @@ export function LeaveRecordTable({ type, employeeData, onSubmit }: Props) {
                   <TableRow
                     key={record.id}
                     className={`${type != TableType.personal && "h-[40px]"}`}
+                    data-testid="leave-record"
                   >
                     {type != TableType.personal && (
                       <TableCell>{record.name}</TableCell>

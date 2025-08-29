@@ -96,7 +96,10 @@ function EmployeePage() {
         <div className="flex items-center gap-2 pl-2">
           <p className="w-[50px] font-medium">員工</p>
           <Select onValueChange={setName} value={name}>
-            <SelectTrigger className="min-w-[115px] bg-transparent px-2 font-semibold">
+            <SelectTrigger
+              data-testid="employee-select"
+              className="min-w-[115px] bg-transparent px-2 font-semibold"
+            >
               <SelectValue placeholder="選擇員工" />
             </SelectTrigger>
             <SelectContent>

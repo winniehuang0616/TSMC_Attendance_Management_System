@@ -12,7 +12,7 @@ git checkout -b {branch_name}
 `cp env.example src/.env` <br>
 Note: This file is used to configure database access, JWT keys, and other environment variables.
 #### 3. Create and Activate a Virtual Environment
-- venv
+- venv (`source venv/bin/activate`)
 - conda
 #### 4. Install dependencies
 `pip install -r requirements.txt`

@@ -109,8 +109,7 @@ export function DetailCard({
       toast({
         title: "已簽核假單",
         description: "系統將寄信通知申請者",
-        });
-        
+      });
     } catch (error) {
       toast({
         title: "送出簽核結果失敗",
@@ -118,10 +117,10 @@ export function DetailCard({
         variant: "destructive",
       });
       console.error("簽核失敗：", error);
-
     } finally {
       setSubmitLoading(false);
-    }};
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -131,10 +130,10 @@ export function DetailCard({
           className="flex h-9 w-9 items-center justify-center rounded-full p-1 transition hover:cursor-pointer hover:bg-purple"
           data-testid={
             detailData.status === "rejected"
-              ? `view-${detailData.id}`
+              ? "view"
               : detailData.status === "approved"
-              ? `delete-${detailData.id}`
-              : `review-${detailData.id}`
+                ? "delete"
+                : "review"
           }
         >
           {detailData.status === "rejected" ? (

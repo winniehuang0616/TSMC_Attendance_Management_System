@@ -92,7 +92,7 @@ export const useLeaveSummary = (userId: string | null) => {
           ),
         },
       ];
-      console.log(summary)
+      console.log(summary);
       setLeaveData(summary);
     } catch (error) {
       console.error("Error fetching leave summary:", error);

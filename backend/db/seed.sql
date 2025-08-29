@@ -4,7 +4,8 @@ INSERT INTO department (department_id) VALUES
 ('BSID'),
 ('AAID'),
 ('ICSD'),
-('TSID');
+('TSID'),
+('TEST');
 
 -- 插入假別資料（leave_type）
 INSERT INTO leave_type (type_id) VALUES
@@ -23,21 +24,27 @@ INSERT INTO employee_info (
 ('EMP007', 'pwd321', 'Oscar Yang', '2020-01-05 09:00:00', 'oscaryang@company.com', '0933444555', 'ICSD', 'manager'),
 ('EMP008', 'pwd654', 'Mia Tsai', '2021-06-21 09:00:00', 'miatsai@company.com', '0944555666', 'ICSD', 'employee'),
 ('EMP009', 'pwd987', 'Kevin Lai', '2022-11-01 09:00:00', 'kevinlai@company.com', '0955666777', 'ICSD', 'employee');
-
-
+('EMPManager', 'pwdmanager', 'Manager Name', '2025-07-01 09:00:00', 'manager@company.com', '0900000000', 'TEST', 'manager');
+('EMPEmployee', 'pwdemployee', 'Employee Name', '2025-07-01 09:00:00', 'employee@company.com', '0900000000', 'TEST', 'employee');
+('EMPAgent', 'pwdagent', 'Agent Name', '2025-07-01 09:00:00', 'agent@company.com', '0900000000', 'TEST', 'employee');
 
 INSERT INTO leave_info (
     leave_id, employee_id, status, start_time, end_time,
     leave_type, reason, agent_id,
     reviewer_id, comment
 ) VALUES
-('L001', 'EMP002', 0, '2024-05-01 09:00:00', '2024-05-02 18:00:00', 1, '年度休假', 'EMP003', NULL, NULL);
+('L001', 'EMPEMPLOYEE', 0, '2024-07-01 08:00:00', '2024-07-01 12:00:00', 2, '感冒看醫生', 'EMP002', NULL, NULL),
+('L002', 'EMPEMPLOYEE', 0, '2024-09-01 08:00:00', '2024-09-01 12:00:00', 2, '感冒看醫生', 'EMP002', NULL, NULL),
+('L003', 'EMPEMPLOYEE', 0, '2024-09-08 08:00:00', '2024-09-09 08:00:00', 1, '國旅一天', 'EMP003', NULL, NULL),
 
 INSERT INTO leave_balance (employee_id, leave_type, year, allocated_hours) VALUES
+-- EMP001
 ('EMP001', 0, 2025, 24),
 ('EMP001', 1, 2025, 40),
 ('EMP001', 2, 2025, 80),
 ('EMP001', 3, 2025, 16), 
+
+-- EMP002
 ('EMP002', 0, 2025, 24),
 ('EMP002', 1, 2025, 40),
 ('EMP002', 2, 2025, 80),
@@ -84,4 +91,16 @@ INSERT INTO leave_balance (employee_id, leave_type, year, allocated_hours) VALUE
 ('EMP009', 1, 2025, 28),
 ('EMP009', 2, 2025, 72),
 ('EMP009', 3, 2025, 11);
+
+-- EMPManager
+('EMPManager', 0, 2025, 24),
+('EMPManager', 1, 2025, 40),
+('EMPManager', 2, 2025, 80),
+('EMPManager', 3, 2025, 16), 
+
+-- EMPEmployee
+('EMPEmployee', 0, 2025, 24),
+('EMPEmployee', 1, 2025, 40),
+('EMPEmployee', 2, 2025, 80),
+('EMPEmployee', 3, 2025, 16), 
 

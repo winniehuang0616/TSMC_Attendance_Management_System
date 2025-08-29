@@ -90,7 +90,7 @@ class LeaveService:
 
         if quota <= 0:
             raise HTTPException(status_code=400, detail="Leave quota exceeded")
-        elif quota < new_duration:
+        elif used_leaves['used_hours'][data['leaveType']] + new_duration > allocated_leaves['allocated_hours'][data['leaveType']]:
             raise HTTPException(status_code=400, detail="Leave duration exceeds quota")
 
         success = update_leave_form(leaveId, data)

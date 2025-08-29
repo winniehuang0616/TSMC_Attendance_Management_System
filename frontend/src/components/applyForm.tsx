@@ -222,7 +222,6 @@ export function ApplyForm({ onSuccess }: Props) {
           <div className="flex flex-col gap-4 sm:flex-row">
             {["start", "end"].map((fieldKey) => {
               const hourKey = (fieldKey + "Hour") as "startHour" | "endHour";
-
               return (
                 <div key={fieldKey} className="flex flex-col items-end">
                   <FormField
@@ -243,6 +242,7 @@ export function ApplyForm({ onSuccess }: Props) {
                                     "w-[120px] pl-3 text-left font-normal",
                                     !field.value && "text-muted-foreground",
                                   )}
+                                  data-testid={`${fieldKey}-date`} // start-date / end-date
                                 >
                                   {field.value ? (
                                     format(field.value, "yyyy/MM/dd")
@@ -258,6 +258,7 @@ export function ApplyForm({ onSuccess }: Props) {
                               align="start"
                             >
                               <Calendar
+                                data-testid={`${fieldKey}-calendar`}
                                 mode="single"
                                 selected={field.value}
                                 onSelect={(date) => {
@@ -295,6 +296,7 @@ export function ApplyForm({ onSuccess }: Props) {
                                 <FormLabel>幾點</FormLabel>
                                 <FormControl>
                                   <Input
+                                    data-testid={`${hourKey}`} // startHour / endHour
                                     type="number"
                                     min={8}
                                     max={16}
@@ -345,7 +347,7 @@ export function ApplyForm({ onSuccess }: Props) {
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger data-testid={`${fieldKey}`}>
                           <SelectValue
                             placeholder={`選擇${fieldKey === "type" ? "假別" : "代理人"}`}
                           />
@@ -388,7 +390,11 @@ export function ApplyForm({ onSuccess }: Props) {
               <FormItem>
                 <FormLabel>請輸入請假原因</FormLabel>
                 <FormControl>
-                  <Input placeholder="輸入請假原因" {...field} />
+                  <Input
+                    placeholder="輸入請假原因"
+                    data-testid="reason"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage className="hidden" />
               </FormItem>
@@ -436,6 +442,7 @@ export function ApplyForm({ onSuccess }: Props) {
                     <input
                       ref={fileInputRef}
                       id="file-upload"
+                      data-testid="file"
                       type="file"
                       accept=".png,.jpg,.jpeg"
                       className="hidden"
